@@ -1,5 +1,4 @@
-use std::ops::Mul;
-use std::ops::Neg;
+use std::ops::{Div, Mul, Neg};
 
 /**
 Author: Maciek Mika
@@ -25,14 +24,31 @@ impl Neg for Tuple {
     }
 }
 
+// implement operator overloading for multiplying tuple
 impl Mul<f32> for Tuple {
-    type Output = ();
+    type Output = Tuple;
 
     fn mul(mut self, rhs: f32) -> Self::Output {
-        self.x = self.x * rhs;
-        self.y = self.y * rhs;
-        self.z = self.z * rhs;
-        self.w = self.w * rhs;
+        Tuple {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+            w: self.w * rhs,
+        }
+    }
+}
+
+// implement operator overloading for dividing tuple
+impl Div<f32> for Tuple {
+    type Output = Tuple;
+
+    fn div(mut self, rhs: f32) -> Self::Output {
+        Tuple {
+            x: self.x / rhs,
+            y: self.y / rhs,
+            z: self.z / rhs,
+            w: self.w / rhs,
+        }
     }
 }
 
@@ -186,14 +202,27 @@ mod tests {
         let point1 = Tuple::new(1.0, -2.0, 3.0, -4.0);
         let point2 = Tuple::new(1.0, -2.0, 3.0, -4.0);
 
-        assert_eq!(point1.x * 3.5, 3.5);
-        assert_eq!(point1.y * 3.5, -7.0);
-        assert_eq!(point1.z * 3.5, 10.5);
-        assert_eq!(point1.w * 3.5, -14.0);
+        let point1 = point1 * 3.5;
+        let point2 = point2 * 0.5;
+        assert_eq!(point1.x, 3.5);
+        assert_eq!(point1.y, -7.0);
+        assert_eq!(point1.z, 10.5);
+        assert_eq!(point1.w, -14.0);
 
-        assert_eq!(point2.x * 0.5, 0.5);
-        assert_eq!(point2.y * 0.5, -1.0);
-        assert_eq!(point2.z * 0.5, 1.5);
-        assert_eq!(point2.w * 0.5, -2.0);
+        assert_eq!(point2.x, 0.5);
+        assert_eq!(point2.y, -1.0);
+        assert_eq!(point2.z, 1.5);
+        assert_eq!(point2.w, -2.0);
+    }
+
+    #[test]
+    fn test_division_tuple() {
+        let point = Tuple::new(1.0, -2.0, 3.0, -4.0);
+
+        let point = point / 2.0;
+        assert_eq!(point.x, 0.5);
+        assert_eq!(point.y, -1.0);
+        assert_eq!(point.z, 1.5);
+        assert_eq!(point.w, -2.0);
     }
 }
