@@ -1,3 +1,5 @@
+use std::ops::Neg;
+
 /**
 Author: Maciek Mika
 This is the main file that runs the ray tracer
@@ -11,6 +13,11 @@ struct Tuple {
 }
 
 impl Tuple {
+    // create new tuple
+    pub fn new(x: f32, y: f32, z: f32, w: f32) -> Self {
+        Self { x, y, z, w }
+    }
+
     // creates a new tuple that is a point
     pub fn new_point(x: f32, y: f32, z: f32) -> Self {
         Self { x, y, z, w: 1.0 }
@@ -55,6 +62,13 @@ impl Tuple {
             z: self.z - tuple.z,
             w: self.w - tuple.w,
         }
+    }
+
+    // negate x, y, z of tuple
+    pub fn negate(&mut self) {
+        self.x.neg();
+        self.y.neg();
+        self.z.neg();
     }
 }
 
@@ -133,6 +147,16 @@ mod tests {
         let point2 = Tuple::new_vector(5.0, 6.0, 7.0);
 
         let new_tuple = point1.sub_tuples(&point2);
+
+        assert_eq!(new_tuple.x, -2.0);
+        assert_eq!(new_tuple.y, -4.0);
+        assert_eq!(new_tuple.z, -6.0);
+        assert_eq!(new_tuple.w, 0.0);
+    }
+
+    #[test]
+    fn test_negate_tuple() {
+        let point1 = Tuple::new_vector(1.0, 2.0, 1.0);
 
         assert_eq!(new_tuple.x, -2.0);
         assert_eq!(new_tuple.y, -4.0);
