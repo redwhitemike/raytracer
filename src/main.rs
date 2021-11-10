@@ -1,3 +1,4 @@
+use std::ops::Mul;
 use std::ops::Neg;
 
 /**
@@ -10,6 +11,29 @@ struct Tuple {
     y: f32,
     z: f32,
     w: f32,
+}
+
+// implement operator overloading
+impl Neg for Tuple {
+    type Output = ();
+
+    fn neg(mut self) -> Self::Output {
+        self.x = self.x.neg();
+        self.y = self.y.neg();
+        self.z = self.z.neg();
+        self.w = self.w.neg();
+    }
+}
+
+impl Mul<f32> for Tuple {
+    type Output = ();
+
+    fn mul(mut self, rhs: f32) -> Self::Output {
+        self.x = self.x * rhs;
+        self.y = self.y * rhs;
+        self.z = self.z * rhs;
+        self.w = self.w * rhs;
+    }
 }
 
 impl Tuple {
@@ -62,13 +86,6 @@ impl Tuple {
             z: self.z - tuple.z,
             w: self.w - tuple.w,
         }
-    }
-
-    // negate x, y, z of tuple
-    pub fn negate(&mut self) {
-        self.x.neg();
-        self.y.neg();
-        self.z.neg();
     }
 }
 
@@ -156,11 +173,27 @@ mod tests {
 
     #[test]
     fn test_negate_tuple() {
-        let point1 = Tuple::new_vector(1.0, 2.0, 1.0);
+        let mut point = Tuple::new(1.0, -2.0, 3.0, -4.0);
 
-        assert_eq!(new_tuple.x, -2.0);
-        assert_eq!(new_tuple.y, -4.0);
-        assert_eq!(new_tuple.z, -6.0);
-        assert_eq!(new_tuple.w, 0.0);
+        assert_eq!(-point.x, -1.0);
+        assert_eq!(-point.y, 2.0);
+        assert_eq!(-point.z, -3.0);
+        assert_eq!(-point.w, 4.0);
+    }
+
+    #[test]
+    fn test_multiply_tuple() {
+        let point1 = Tuple::new(1.0, -2.0, 3.0, -4.0);
+        let point2 = Tuple::new(1.0, -2.0, 3.0, -4.0);
+
+        assert_eq!(point1.x * 3.5, 3.5);
+        assert_eq!(point1.y * 3.5, -7.0);
+        assert_eq!(point1.z * 3.5, 10.5);
+        assert_eq!(point1.w * 3.5, -14.0);
+
+        assert_eq!(point2.x * 0.5, 0.5);
+        assert_eq!(point2.y * 0.5, -1.0);
+        assert_eq!(point2.z * 0.5, 1.5);
+        assert_eq!(point2.w * 0.5, -2.0);
     }
 }
