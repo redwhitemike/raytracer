@@ -103,6 +103,11 @@ impl Tuple {
             w: self.w - tuple.w,
         }
     }
+
+    // return the magnitude of the vector
+    pub fn magnitude(&self) -> f32 {
+        f32::sqrt(self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2))
+    }
 }
 
 const EPSILON: f32 = 0.00001;
@@ -224,5 +229,20 @@ mod tests {
         assert_eq!(point.y, -1.0);
         assert_eq!(point.z, 1.5);
         assert_eq!(point.w, -2.0);
+    }
+
+    #[test]
+    fn test_magnitude_vector() {
+        let vector1 = Tuple::new_vector(1.0, 0.0, 0.0);
+        let vector2 = Tuple::new_vector(0.0, 1.0, 0.0);
+        let vector3 = Tuple::new_vector(0.0, 0.0, 1.0);
+        let vector4 = Tuple::new_vector(1.0, 2.0, 3.0);
+        let vector5 = Tuple::new_vector(-1.0, -2.0, -3.0);
+
+        assert_eq!(vector1.magnitude(), 1.0);
+        assert_eq!(vector2.magnitude(), 1.0);
+        assert_eq!(vector3.magnitude(), 1.0);
+        assert_eq!(vector4.magnitude(), f32::sqrt(14.0));
+        assert_eq!(vector5.magnitude(), f32::sqrt(14.0));
     }
 }
