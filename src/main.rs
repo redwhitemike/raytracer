@@ -108,6 +108,16 @@ impl Tuple {
     pub fn magnitude(&self) -> f32 {
         f32::sqrt(self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2))
     }
+
+    // convert vector into unit vector
+    pub fn normalize(&self) -> Tuple {
+        Tuple {
+            x: self.x / self.magnitude(),
+            y: self.y / self.magnitude(),
+            z: self.z / self.magnitude(),
+            w: self.w / self.magnitude(),
+        }
+    }
 }
 
 const EPSILON: f32 = 0.00001;
@@ -244,5 +254,23 @@ mod tests {
         assert_eq!(vector3.magnitude(), 1.0);
         assert_eq!(vector4.magnitude(), f32::sqrt(14.0));
         assert_eq!(vector5.magnitude(), f32::sqrt(14.0));
+    }
+
+    #[test]
+    fn test_normalization_vector() {
+        let vector1 = Tuple::new_vector(4.0, 0.0, 0.0);
+        let vector2 = Tuple::new_vector(1.0, 2.0, 3.0);
+        let vector3 = Tuple::new_vector(1.0, 2.0, 3.0);
+
+        assert_eq!(vector1.normalize(), Tuple::new_vector(1.0, 0.0, 0.0));
+        assert_eq!(
+            vector2.normalize(),
+            Tuple::new_vector(
+                f32::sqrt(14.0),
+                2.0 * f32::sqrt(14.0),
+                3.0 * f32::sqrt(14.0)
+            )
+        );
+        assert_eq!(vector3.normalize().magnitude(), 1.0);
     }
 }
