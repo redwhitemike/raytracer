@@ -6,14 +6,14 @@ use std::ops::{Div, Mul, Neg};
 */
 
 #[derive(Debug)]
-struct Tuple {
+pub struct Tuple {
     x: f32,
     y: f32,
     z: f32,
     w: f32,
 }
 
-// implement operator overloading
+// implement '-' operator overloading
 impl Neg for Tuple {
     type Output = ();
 
@@ -25,6 +25,7 @@ impl Neg for Tuple {
     }
 }
 
+// implement '==' operator overload for comparing tuples
 impl PartialEq for Tuple {
     fn eq(&self, other: &Self) -> bool {
         Tuple::compare_floats(self.x, other.x)
@@ -78,7 +79,7 @@ impl Tuple {
     }
 
     // compare floating numbers
-    fn compare_floats(x: f32, y: f32) -> bool {
+    pub fn compare_floats(x: f32, y: f32) -> bool {
         if f32::abs(x - y) < EPSILON {
             return true;
         }
