@@ -6,8 +6,8 @@ use std::ops::{Add, Mul, Sub};
     Also contains tests methods
 */
 
-#[derive(Debug)]
-struct Color {
+#[derive(Debug, Clone)]
+pub struct Color {
     red: f32,
     green: f32,
     blue: f32,
