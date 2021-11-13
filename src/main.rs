@@ -5,6 +5,7 @@ Author: Maciek Mika
 This is the main file that runs the ray tracer
 */
 
+#[derive(Debug)]
 struct Tuple {
     x: f32,
     y: f32,
@@ -21,6 +22,14 @@ impl Neg for Tuple {
         self.y = self.y.neg();
         self.z = self.z.neg();
         self.w = self.w.neg();
+    }
+}
+
+impl PartialEq for Tuple {
+    fn eq(&self, other: &Self) -> bool {
+        Tuple::compare_floats(self.x, other.x)
+            && Tuple::compare_floats(self.y, other.y)
+            && Tuple::compare_floats(self.z, other.z)
     }
 }
 
@@ -117,6 +126,20 @@ impl Tuple {
             z: self.z / self.magnitude(),
             w: self.w / self.magnitude(),
         }
+    }
+
+    // create dot product of 2 vectors
+    pub fn dot_product(t1: &Tuple, t2: &Tuple) -> f32 {
+        t1.x * t2.x + t1.y * t2.y + t1.z * t2.z + t1.w * t1.w
+    }
+
+    // create cross product of 2 vectors
+    pub fn cross_product(t1: &Tuple, t2: &Tuple) -> Tuple {
+        Tuple::new_vector(
+            t1.y * t2.z - t1.z * t2.y,
+            t1.z * t2.x - t1.x * t2.z,
+            t1.x * t2.y - t1.y * t2.x,
+        )
     }
 }
 
@@ -266,11 +289,30 @@ mod tests {
         assert_eq!(
             vector2.normalize(),
             Tuple::new_vector(
-                f32::sqrt(14.0),
-                2.0 * f32::sqrt(14.0),
-                3.0 * f32::sqrt(14.0)
+                1.0 / f32::sqrt(14.0),
+                2.0 / f32::sqrt(14.0),
+                3.0 / f32::sqrt(14.0)
             )
         );
-        assert_eq!(vector3.normalize().magnitude(), 1.0);
+        assert!(Tuple::compare_floats(vector3.normalize().magnitude(), 1.0));
+    }
+
+    #[test]
+    fn test_dot_product() {
+        let vector1 = Tuple::new_vector(1.0, 2.0, 3.0);
+        let vector2 = Tuple::new_vector(2.0, 3.0, 4.0);
+
+        assert_eq!(Tuple::dot_product(&vector1, &vector2), 20.0)
+    }
+
+    #[test]
+    fn test_cross_product() {
+        let vector1 = Tuple::new_vector(1.0, 2.0, 3.0);
+        let vector2 = Tuple::new_vector(2.0, 3.0, 4.0);
+        let right_vector1 = Tuple::new_vector(-1.0, 2.0, -1.0);
+        let right_vector2 = Tuple::new_vector(1.0, -2.0, 1.0);
+
+        assert_eq!(Tuple::cross_product(&vector1, &vector2), right_vector1);
+        assert_eq!(Tuple::cross_product(&vector2, &vector1), right_vector2);
     }
 }
