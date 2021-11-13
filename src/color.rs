@@ -82,7 +82,7 @@ mod tests {
     use crate::color::Color;
 
     #[test]
-    fn test_creating_color() {
+    fn creating_color() {
         let color = Color::new(-0.5, 0.4, 1.7);
 
         assert_eq!(color.red, -0.5);
@@ -91,7 +91,7 @@ mod tests {
     }
 
     #[test]
-    fn test_adding_colors() {
+    fn adding_colors() {
         let color1 = Color::new(0.9, 0.6, 0.75);
         let color2 = Color::new(0.7, 0.1, 0.25);
         let color_correct = Color::new(1.6, 0.7, 1.0);
@@ -100,7 +100,7 @@ mod tests {
     }
 
     #[test]
-    fn test_substracting_colors() {
+    fn substracting_colors() {
         let color1 = Color::new(0.9, 0.6, 0.75);
         let color2 = Color::new(0.7, 0.1, 0.25);
         let color_correct = Color::new(0.2, 0.5, 0.5);
@@ -109,7 +109,7 @@ mod tests {
     }
 
     #[test]
-    fn test_multiplying_colors_by_scalar() {
+    fn multiplying_colors_by_scalar() {
         let color = Color::new(0.2, 0.3, 0.4);
         let color_correct = Color::new(0.4, 0.6, 0.8);
 
@@ -117,7 +117,7 @@ mod tests {
     }
 
     #[test]
-    fn test_multiplying_colors() {
+    fn multiplying_colors() {
         let color1 = Color::new(1.0, 0.2, 0.4);
         let color2 = Color::new(0.9, 1.0, 0.1);
         let color_correct = Color::new(0.9, 0.2, 0.04);

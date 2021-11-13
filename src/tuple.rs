@@ -143,7 +143,7 @@ mod tests {
     use crate::tuple::Tuple;
 
     #[test]
-    fn test_new_point() {
+    fn new_point() {
         let point = Tuple::new_point(4.3, -4.2, 3.1);
 
         assert_eq!(point.x, 4.3);
@@ -153,7 +153,7 @@ mod tests {
     }
 
     #[test]
-    fn test_new_vector() {
+    fn new_vector() {
         let point = Tuple::new_vector(4.3, -4.2, 3.1);
 
         assert_eq!(point.x, 4.3);
@@ -163,7 +163,7 @@ mod tests {
     }
 
     #[test]
-    fn test_tuple_addition() {
+    fn tuple_addition() {
         let point = Tuple::new_point(3.0, -2.0, 5.0);
         let vector = Tuple::new_vector(-2.0, 3.0, 1.0);
 
@@ -176,7 +176,7 @@ mod tests {
     }
 
     #[test]
-    fn test_points_subtraction() {
+    fn points_subtraction() {
         let point1 = Tuple::new_point(3.0, 2.0, 1.0);
         let point2 = Tuple::new_point(5.0, 6.0, 7.0);
 
@@ -189,7 +189,7 @@ mod tests {
     }
 
     #[test]
-    fn test_vector_point_subtraction() {
+    fn vector_point_subtraction() {
         let point1 = Tuple::new_point(3.0, 2.0, 1.0);
         let point2 = Tuple::new_vector(5.0, 6.0, 7.0);
 
@@ -202,7 +202,7 @@ mod tests {
     }
 
     #[test]
-    fn test_vectors_subtraction() {
+    fn vectors_subtraction() {
         let point1 = Tuple::new_vector(3.0, 2.0, 1.0);
         let point2 = Tuple::new_vector(5.0, 6.0, 7.0);
 
@@ -215,7 +215,7 @@ mod tests {
     }
 
     #[test]
-    fn test_negate_tuple() {
+    fn negate_tuple() {
         let point = Tuple::new(1.0, -2.0, 3.0, -4.0);
 
         assert_eq!(-point.x, -1.0);
@@ -225,7 +225,7 @@ mod tests {
     }
 
     #[test]
-    fn test_multiply_tuple() {
+    fn multiply_tuple() {
         let point1 = Tuple::new(1.0, -2.0, 3.0, -4.0);
         let point2 = Tuple::new(1.0, -2.0, 3.0, -4.0);
 
@@ -243,7 +243,7 @@ mod tests {
     }
 
     #[test]
-    fn test_division_tuple() {
+    fn division_tuple() {
         let point = Tuple::new(1.0, -2.0, 3.0, -4.0);
 
         let point = point / 2.0;
@@ -254,7 +254,7 @@ mod tests {
     }
 
     #[test]
-    fn test_magnitude_vector() {
+    fn magnitude_vector() {
         let vector1 = Tuple::new_vector(1.0, 0.0, 0.0);
         let vector2 = Tuple::new_vector(0.0, 1.0, 0.0);
         let vector3 = Tuple::new_vector(0.0, 0.0, 1.0);
@@ -269,7 +269,7 @@ mod tests {
     }
 
     #[test]
-    fn test_normalization_vector() {
+    fn normalization_vector() {
         let vector1 = Tuple::new_vector(4.0, 0.0, 0.0);
         let vector2 = Tuple::new_vector(1.0, 2.0, 3.0);
         let vector3 = Tuple::new_vector(1.0, 2.0, 3.0);
@@ -287,7 +287,7 @@ mod tests {
     }
 
     #[test]
-    fn test_dot_product() {
+    fn dot_product() {
         let vector1 = Tuple::new_vector(1.0, 2.0, 3.0);
         let vector2 = Tuple::new_vector(2.0, 3.0, 4.0);
 
@@ -295,7 +295,7 @@ mod tests {
     }
 
     #[test]
-    fn test_cross_product() {
+    fn cross_product() {
         let vector1 = Tuple::new_vector(1.0, 2.0, 3.0);
         let vector2 = Tuple::new_vector(2.0, 3.0, 4.0);
         let right_vector1 = Tuple::new_vector(-1.0, 2.0, -1.0);
