@@ -1,4 +1,5 @@
 use crate::tuple::Tuple;
+use std::fmt::{Display, Formatter};
 use std::ops::{Add, Mul, Sub};
 /**
     Author: Maciek Mika
@@ -44,6 +45,29 @@ impl Sub<Color> for Color {
             self.green - rhs.green,
             self.blue - rhs.blue,
         )
+    }
+}
+
+// return the r g b values of the pixel. filter out
+// all values that are below 0 or above 255 to be 0 or 255
+impl Display for Color {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let red = match (self.red * 255.0).ceil() as i32 {
+            n if n > 255 => 255,
+            n if n < 0 => 0,
+            n => n,
+        };
+        let green = match (self.green * 255.0).ceil() as i32 {
+            n if n > 255 => 255,
+            n if n < 0 => 0,
+            n => n,
+        };
+        let blue = match (self.blue * 255.0).ceil() as i32 {
+            n if n > 255 => 255,
+            n if n < 0 => 0,
+            n => n,
+        };
+        write!(f, "{} {} {}", red, green, blue)
     }
 }
 
@@ -100,7 +124,7 @@ mod tests {
     }
 
     #[test]
-    fn substracting_colors() {
+    fn subtracting_colors() {
         let color1 = Color::new(0.9, 0.6, 0.75);
         let color2 = Color::new(0.7, 0.1, 0.25);
         let color_correct = Color::new(0.2, 0.5, 0.5);
