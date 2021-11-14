@@ -99,6 +99,26 @@ impl Color {
     pub fn new(red: f32, green: f32, blue: f32) -> Self {
         Self { red, green, blue }
     }
+
+    // return a vec of all the color values
+    pub fn to_vec_string(&self) -> Vec<String> {
+        let red = match (self.red * 255.0).ceil() as i32 {
+            n if n > 255 => 255,
+            n if n < 0 => 0,
+            n => n,
+        };
+        let green = match (self.green * 255.0).ceil() as i32 {
+            n if n > 255 => 255,
+            n if n < 0 => 0,
+            n => n,
+        };
+        let blue = match (self.blue * 255.0).ceil() as i32 {
+            n if n > 255 => 255,
+            n if n < 0 => 0,
+            n => n,
+        };
+        vec![red.to_string(), green.to_string(), blue.to_string()]
+    }
 }
 
 #[cfg(test)]
