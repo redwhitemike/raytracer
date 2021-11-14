@@ -28,6 +28,15 @@ impl Canvas {
         }
     }
 
+    // create a new canvas with a default color given
+    pub fn new_with_color(width: usize, height: usize, color: Color) -> Self {
+        Self {
+            width,
+            height,
+            pixels: vec![vec![color; width]; height],
+        }
+    }
+
     // change a pixel at the given position
     pub fn write_pixel(&mut self, width: usize, height: usize, color: Color) {
         self.pixels[height][width] = color
@@ -40,17 +49,33 @@ impl Canvas {
 
     // create ppm string out of a canvas struct
     pub fn to_ppm(&self) -> String {
-        let mut string = format!("P3\n{} {}\n255\n", self.width, self.height);
+        let header = format!("P3\n{} {}\n255\n", self.width, self.height);
+        let mut ppm_vec: Vec<String> = Vec::new();
+        ppm_vec.push(header);
+        ppm_vec.push(String::new());
 
         self.pixels.iter().for_each(|x| {
             x.iter().for_each(|y| {
-                string += &*y.to_string();
-                string += " ";
+                let string_vec = y.to_vec_string();
+                // check if the last string in the ppm vec is longer then 70
+                // when you add length of the color string, a space and newline
+                // characters.
+                string_vec.iter().for_each(|c| {
+                    match ppm_vec.last().unwrap().len() + c.chars().count() + 3 <= 70 {
+                        true => ppm_vec.last_mut().unwrap().push_str(&*format!("{} ", c)),
+                        false => {
+                            ppm_vec.last_mut().unwrap().push_str(" \n");
+                            ppm_vec.push(format!("{} ", c))
+                        }
+                    }
+                })
             });
-            string += "\n";
+            // push empty new string after all pixels
+            // in a row have been converted
+            ppm_vec.push("\n".to_string())
         });
 
-        string
+        ppm_vec.join("")
     }
 }
 
@@ -95,9 +120,26 @@ mod tests {
         let ppm_string = canvas.to_ppm();
         let correct_string = String::from(
             "P3\n\
-            5 3\n\
+            10 2\n\
         255\n\
         255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 \n\
+        0 0 0 0 0 0 0 128 0 0 0 0 0 0 0 \n\
+        0 0 0 0 0 0 0 0 0 0 0 0 0 0 255 \n",
+        );
+        assert_eq!(ppm_string, correct_string)
+    }
+
+    #[test]
+    fn check_lines_split_ppm() {
+        let color = Color::new(1.0, 0.8, 0.6);
+        let canvas = Canvas::new_with_color(10, 2, color);
+
+        let ppm_string = canvas.to_ppm();
+        let correct_string = String::from(
+            "P3\n\
+            5 3\n\
+        255\n\
+        255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204\n\
         0 0 0 0 0 0 0 128 0 0 0 0 0 0 0 \n\
         0 0 0 0 0 0 0 0 0 0 0 0 0 0 255 \n",
         );
