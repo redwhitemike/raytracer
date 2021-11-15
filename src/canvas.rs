@@ -69,8 +69,10 @@ impl Canvas {
                 })
             });
             // push empty new string after all pixels
-            // in a row have been converted
-            ppm_vec.push("\n".to_string())
+            // in a row have been converted and add
+            // new line character add last string
+            ppm_vec.last_mut().unwrap().push('\n');
+            ppm_vec.push("".to_string())
         });
 
         ppm_vec.join("")
@@ -135,7 +137,7 @@ mod tests {
         let ppm_string = canvas.to_ppm();
         let correct_string = String::from(
             "P3\n\
-            10 5\n\
+            10 2\n\
         255\n\
         255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 \n\
         153 255 204 153 255 204 153 255 204 153 255 204 153 \n\
@@ -143,5 +145,15 @@ mod tests {
         153 255 204 153 255 204 153 255 204 153 255 204 153 \n",
         );
         assert_eq!(ppm_string, correct_string)
+    }
+
+    #[test]
+    fn check_new_line_character_ppm() {
+        let color = Color::new(1.0, 0.8, 0.6);
+        let canvas = Canvas::new_with_color(10, 2, color);
+
+        let ppm_string = canvas.to_ppm();
+
+        assert_eq!(ppm_string.chars().last().unwrap(), '\n')
     }
 }
