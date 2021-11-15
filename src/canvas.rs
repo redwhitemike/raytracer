@@ -37,9 +37,16 @@ impl Canvas {
         }
     }
 
-    // change a pixel at the given position
-    pub fn write_pixel(&mut self, width: usize, height: usize, color: Color) {
-        self.pixels[height][width] = color
+    // change a pixel at the given position, return result if it failed
+    // because it's out of bound
+    pub fn write_pixel(&mut self, width: usize, height: usize, color: Color) -> Result<T, E> {
+        match self.pixels.get(height) {
+            None => Err("invalid index"),
+            Some(mut e) => {
+                e.insert(width, color);
+                Ok(())
+            }
+        }
     }
 
     // helper function to make the retrieval easier for getting a pixel
