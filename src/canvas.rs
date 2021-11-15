@@ -50,9 +50,7 @@ impl Canvas {
     // create ppm string out of a canvas struct
     pub fn to_ppm(&self) -> String {
         let header = format!("P3\n{} {}\n255\n", self.width, self.height);
-        let mut ppm_vec: Vec<String> = Vec::new();
-        ppm_vec.push(header);
-        ppm_vec.push(String::new());
+        let mut ppm_vec: Vec<String> = vec![header, String::new()];
 
         self.pixels.iter().for_each(|x| {
             x.iter().for_each(|y| {
@@ -64,7 +62,7 @@ impl Canvas {
                     match ppm_vec.last().unwrap().len() + c.chars().count() + 3 <= 70 {
                         true => ppm_vec.last_mut().unwrap().push_str(&*format!("{} ", c)),
                         false => {
-                            ppm_vec.last_mut().unwrap().push_str(" \n");
+                            ppm_vec.last_mut().unwrap().push('\n');
                             ppm_vec.push(format!("{} ", c))
                         }
                     }
@@ -120,7 +118,7 @@ mod tests {
         let ppm_string = canvas.to_ppm();
         let correct_string = String::from(
             "P3\n\
-            10 2\n\
+            5 3\n\
         255\n\
         255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 \n\
         0 0 0 0 0 0 0 128 0 0 0 0 0 0 0 \n\
@@ -137,11 +135,12 @@ mod tests {
         let ppm_string = canvas.to_ppm();
         let correct_string = String::from(
             "P3\n\
-            5 3\n\
+            10 5\n\
         255\n\
-        255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204\n\
-        0 0 0 0 0 0 0 128 0 0 0 0 0 0 0 \n\
-        0 0 0 0 0 0 0 0 0 0 0 0 0 0 255 \n",
+        255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 \n\
+        153 255 204 153 255 204 153 255 204 153 255 204 153 \n\
+        255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 \n\
+        153 255 204 153 255 204 153 255 204 153 255 204 153 \n",
         );
         assert_eq!(ppm_string, correct_string)
     }
