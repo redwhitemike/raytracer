@@ -45,9 +45,9 @@ impl Canvas {
         height: usize,
         color: Color,
     ) -> Result<(), &'static str> {
-        match self.pixels.get(height) {
+        match self.pixels.get_mut(height) {
             None => Err("invalid index"),
-            Some(mut e) => {
+            Some(e) => {
                 e.insert(width, color);
                 Ok(())
             }
