@@ -1,19 +1,26 @@
-use std::ops::{Div, Mul, Neg};
+use std::fmt::{Display, Formatter};
+use std::ops::{Add, Div, Mul, Neg, Sub};
 /**
    Author: Maciek Mika
    This is the tuple file. It contains the tuple struct information and methods.
    Also contains tests
 */
 
-#[derive(Debug)]
-struct Tuple {
-    x: f32,
-    y: f32,
-    z: f32,
-    w: f32,
+#[derive(Debug, Clone)]
+pub struct Tuple {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub w: f32,
 }
 
-// implement operator overloading
+impl Display for Tuple {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "x:{} y:{} z:{} w:{}", self.x, self.y, self.z, self.w)
+    }
+}
+
+// implement '-' operator overloading
 impl Neg for Tuple {
     type Output = ();
 
@@ -25,6 +32,35 @@ impl Neg for Tuple {
     }
 }
 
+// implement '+' operator overloading
+impl Add for Tuple {
+    type Output = Tuple;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Tuple {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+            w: self.w + rhs.w,
+        }
+    }
+}
+
+// implement '-' operator overloading
+impl Sub for Tuple {
+    type Output = Tuple;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Tuple {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+            w: self.w - rhs.w,
+        }
+    }
+}
+
+// implement '==' operator overload for comparing tuples
 impl PartialEq for Tuple {
     fn eq(&self, other: &Self) -> bool {
         Tuple::compare_floats(self.x, other.x)
@@ -78,31 +114,11 @@ impl Tuple {
     }
 
     // compare floating numbers
-    fn compare_floats(x: f32, y: f32) -> bool {
+    pub fn compare_floats(x: f32, y: f32) -> bool {
         if f32::abs(x - y) < EPSILON {
             return true;
         }
         false
-    }
-
-    // add 2 tuples together and return a new one
-    pub fn add_tuples(&self, tuple: &Tuple) -> Tuple {
-        Tuple {
-            x: self.x + tuple.x,
-            y: self.y + tuple.y,
-            z: self.z + tuple.z,
-            w: self.w + tuple.w,
-        }
-    }
-
-    // add 2 tuples together and return a new one
-    pub fn sub_tuples(&self, tuple: &Tuple) -> Tuple {
-        Tuple {
-            x: self.x - tuple.x,
-            y: self.y - tuple.y,
-            z: self.z - tuple.z,
-            w: self.w - tuple.w,
-        }
     }
 
     // return the magnitude of the vector
@@ -142,7 +158,7 @@ mod tests {
     use crate::tuple::Tuple;
 
     #[test]
-    fn test_new_point() {
+    fn new_point() {
         let point = Tuple::new_point(4.3, -4.2, 3.1);
 
         assert_eq!(point.x, 4.3);
@@ -152,7 +168,7 @@ mod tests {
     }
 
     #[test]
-    fn test_new_vector() {
+    fn new_vector() {
         let point = Tuple::new_vector(4.3, -4.2, 3.1);
 
         assert_eq!(point.x, 4.3);
@@ -162,11 +178,11 @@ mod tests {
     }
 
     #[test]
-    fn test_tuple_addition() {
+    fn tuple_addition() {
         let point = Tuple::new_point(3.0, -2.0, 5.0);
         let vector = Tuple::new_vector(-2.0, 3.0, 1.0);
 
-        let new_tuple = point.add_tuples(&vector);
+        let new_tuple = point + vector;
 
         assert_eq!(new_tuple.x, 1.0);
         assert_eq!(new_tuple.y, 1.0);
@@ -175,11 +191,11 @@ mod tests {
     }
 
     #[test]
-    fn test_points_subtraction() {
+    fn points_subtraction() {
         let point1 = Tuple::new_point(3.0, 2.0, 1.0);
         let point2 = Tuple::new_point(5.0, 6.0, 7.0);
 
-        let new_tuple = point1.sub_tuples(&point2);
+        let new_tuple = point1 - point2;
 
         assert_eq!(new_tuple.x, -2.0);
         assert_eq!(new_tuple.y, -4.0);
@@ -188,7 +204,7 @@ mod tests {
     }
 
     #[test]
-    fn test_vector_point_subtraction() {
+    fn vector_point_subtraction() {
         let point1 = Tuple::new_point(3.0, 2.0, 1.0);
         let point2 = Tuple::new_vector(5.0, 6.0, 7.0);
 
@@ -201,7 +217,7 @@ mod tests {
     }
 
     #[test]
-    fn test_vectors_subtraction() {
+    fn vectors_subtraction() {
         let point1 = Tuple::new_vector(3.0, 2.0, 1.0);
         let point2 = Tuple::new_vector(5.0, 6.0, 7.0);
 
@@ -214,7 +230,7 @@ mod tests {
     }
 
     #[test]
-    fn test_negate_tuple() {
+    fn negate_tuple() {
         let point = Tuple::new(1.0, -2.0, 3.0, -4.0);
 
         assert_eq!(-point.x, -1.0);
@@ -224,7 +240,7 @@ mod tests {
     }
 
     #[test]
-    fn test_multiply_tuple() {
+    fn multiply_tuple() {
         let point1 = Tuple::new(1.0, -2.0, 3.0, -4.0);
         let point2 = Tuple::new(1.0, -2.0, 3.0, -4.0);
 
@@ -242,7 +258,7 @@ mod tests {
     }
 
     #[test]
-    fn test_division_tuple() {
+    fn division_tuple() {
         let point = Tuple::new(1.0, -2.0, 3.0, -4.0);
 
         let point = point / 2.0;
@@ -253,7 +269,7 @@ mod tests {
     }
 
     #[test]
-    fn test_magnitude_vector() {
+    fn magnitude_vector() {
         let vector1 = Tuple::new_vector(1.0, 0.0, 0.0);
         let vector2 = Tuple::new_vector(0.0, 1.0, 0.0);
         let vector3 = Tuple::new_vector(0.0, 0.0, 1.0);
@@ -268,7 +284,7 @@ mod tests {
     }
 
     #[test]
-    fn test_normalization_vector() {
+    fn normalization_vector() {
         let vector1 = Tuple::new_vector(4.0, 0.0, 0.0);
         let vector2 = Tuple::new_vector(1.0, 2.0, 3.0);
         let vector3 = Tuple::new_vector(1.0, 2.0, 3.0);
@@ -286,7 +302,7 @@ mod tests {
     }
 
     #[test]
-    fn test_dot_product() {
+    fn dot_product() {
         let vector1 = Tuple::new_vector(1.0, 2.0, 3.0);
         let vector2 = Tuple::new_vector(2.0, 3.0, 4.0);
 
@@ -294,7 +310,7 @@ mod tests {
     }
 
     #[test]
-    fn test_cross_product() {
+    fn cross_product() {
         let vector1 = Tuple::new_vector(1.0, 2.0, 3.0);
         let vector2 = Tuple::new_vector(2.0, 3.0, 4.0);
         let right_vector1 = Tuple::new_vector(-1.0, 2.0, -1.0);
