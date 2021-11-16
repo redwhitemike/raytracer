@@ -7,8 +7,8 @@ use crate::color::*;
 // the canvas struct, used as a rectangular grid of pixels
 #[derive(Debug)]
 pub struct Canvas {
-    width: usize,
-    height: usize,
+    pub width: usize,
+    pub height: usize,
     pixels: Vec<Vec<Color>>,
 }
 
