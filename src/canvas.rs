@@ -39,7 +39,12 @@ impl Canvas {
 
     // change a pixel at the given position, return result if it failed
     // because it's out of bound
-    pub fn write_pixel(&mut self, width: usize, height: usize, color: Color) -> Result<T, E> {
+    pub fn write_pixel(
+        &mut self,
+        width: usize,
+        height: usize,
+        color: Color,
+    ) -> Result<(), &'static str> {
         match self.pixels.get(height) {
             None => Err("invalid index"),
             Some(mut e) => {
