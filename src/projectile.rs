@@ -1,6 +1,5 @@
 use crate::tuple::Tuple;
 use std::fmt::{Display, Formatter};
-use std::ops::Add;
 
 pub struct Projectile {
     pub position: Tuple,
@@ -32,7 +31,7 @@ impl Projectile {
     // calculate the new vector projectile position based on
     // the given environment
     pub fn tick(&mut self, environment: Environment) {
-        self.position = self.position + self.velocity;
+        self.position = self.position.clone() + self.velocity.clone();
         self.velocity = self.velocity.clone() + environment.gravity + environment.wind;
     }
 }

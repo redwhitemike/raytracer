@@ -1,25 +1,33 @@
 use crate::canvas::Canvas;
 use crate::color::Color;
+use crate::projectile::{Environment, Projectile};
+use crate::tuple::Tuple;
 
 mod canvas;
 mod color;
+mod projectile;
 mod tuple;
 
 /**
-Author: Maciek Mika
-This is the main file that runs the ray tracer
- */
+   Author: Maciek Mika
+   This is the main file that runs the ray tracer
+*/
 
 fn main() {
-    let mut canvas = Canvas::new(5, 3);
-    let color1 = Color::new(1.5, 0.0, 0.0);
-    let color2 = Color::new(0.0, 0.5, 0.0);
-    let color3 = Color::new(-0.5, 0.0, 1.0);
+    let mut proj = Projectile::new(
+        Tuple::new_point(0.0, 1.0, 0.0),
+        Tuple::new_vector(1.0, 1.0, 0.0).normalize(),
+    );
 
-    canvas.write_pixel(0, 0, color1);
-    canvas.write_pixel(2, 1, color2);
-    canvas.write_pixel(4, 2, color3);
+    let env = Environment::new(
+        Tuple::new_vector(0.0, -0.1, 0.0),
+        Tuple::new_vector(-0.01, 0.0, 0.0),
+    );
 
-    let ppm_string = canvas.to_ppm();
-    println!("{}", ppm_string);
+    let mut count = 0;
+    while proj.position.y > 0.0 {
+        count += 1;
+        proj.tick(env.clone());
+        println!("count: {} | projectile: {}", count, proj);
+    }
 }

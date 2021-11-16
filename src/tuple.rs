@@ -1,16 +1,23 @@
-use std::ops::{Div, Mul, Neg};
+use std::fmt::{Display, Formatter};
+use std::ops::{Add, Div, Mul, Neg, Sub};
 /**
    Author: Maciek Mika
    This is the tuple file. It contains the tuple struct information and methods.
    Also contains tests
 */
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Tuple {
-    x: f32,
-    y: f32,
-    z: f32,
-    w: f32,
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub w: f32,
+}
+
+impl Display for Tuple {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "x:{} y:{} z:{} w:{}", self.x, self.y, self.z, self.w)
+    }
 }
 
 // implement '-' operator overloading
@@ -22,6 +29,34 @@ impl Neg for Tuple {
         self.y = self.y.neg();
         self.z = self.z.neg();
         self.w = self.w.neg();
+    }
+}
+
+// implement '+' operator overloading
+impl Add for Tuple {
+    type Output = Tuple;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Tuple {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+            w: self.w + rhs.w,
+        }
+    }
+}
+
+// implement '-' operator overloading
+impl Sub for Tuple {
+    type Output = Tuple;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Tuple {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+            w: self.w - rhs.w,
+        }
     }
 }
 
@@ -86,26 +121,6 @@ impl Tuple {
         false
     }
 
-    // add 2 tuples together and return a new one
-    pub fn add_tuples(&self, tuple: &Tuple) -> Tuple {
-        Tuple {
-            x: self.x + tuple.x,
-            y: self.y + tuple.y,
-            z: self.z + tuple.z,
-            w: self.w + tuple.w,
-        }
-    }
-
-    // add 2 tuples together and return a new one
-    pub fn sub_tuples(&self, tuple: &Tuple) -> Tuple {
-        Tuple {
-            x: self.x - tuple.x,
-            y: self.y - tuple.y,
-            z: self.z - tuple.z,
-            w: self.w - tuple.w,
-        }
-    }
-
     // return the magnitude of the vector
     pub fn magnitude(&self) -> f32 {
         f32::sqrt(self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2))
@@ -167,7 +182,7 @@ mod tests {
         let point = Tuple::new_point(3.0, -2.0, 5.0);
         let vector = Tuple::new_vector(-2.0, 3.0, 1.0);
 
-        let new_tuple = point.add_tuples(&vector);
+        let new_tuple = point + vector;
 
         assert_eq!(new_tuple.x, 1.0);
         assert_eq!(new_tuple.y, 1.0);
@@ -180,7 +195,7 @@ mod tests {
         let point1 = Tuple::new_point(3.0, 2.0, 1.0);
         let point2 = Tuple::new_point(5.0, 6.0, 7.0);
 
-        let new_tuple = point1.sub_tuples(&point2);
+        let new_tuple = point1 - point2;
 
         assert_eq!(new_tuple.x, -2.0);
         assert_eq!(new_tuple.y, -4.0);
