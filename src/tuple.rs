@@ -8,10 +8,10 @@ use std::ops::{Add, Div, Mul, Neg, Sub};
 
 #[derive(Debug, Clone)]
 pub struct Tuple {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
-    pub w: f32,
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
+    pub w: f64,
 }
 
 impl Display for Tuple {
@@ -70,10 +70,10 @@ impl PartialEq for Tuple {
 }
 
 // implement operator overloading for multiplying tuple
-impl Mul<f32> for Tuple {
+impl Mul<f64> for Tuple {
     type Output = Tuple;
 
-    fn mul(self, rhs: f32) -> Self::Output {
+    fn mul(self, rhs: f64) -> Self::Output {
         Tuple {
             x: self.x * rhs,
             y: self.y * rhs,
@@ -84,10 +84,10 @@ impl Mul<f32> for Tuple {
 }
 
 // implement operator overloading for dividing tuple
-impl Div<f32> for Tuple {
+impl Div<f64> for Tuple {
     type Output = Tuple;
 
-    fn div(self, rhs: f32) -> Self::Output {
+    fn div(self, rhs: f64) -> Self::Output {
         Tuple {
             x: self.x / rhs,
             y: self.y / rhs,
@@ -99,31 +99,31 @@ impl Div<f32> for Tuple {
 
 impl Tuple {
     // create new tuple
-    pub fn new(x: f32, y: f32, z: f32, w: f32) -> Self {
+    pub fn new(x: f64, y: f64, z: f64, w: f64) -> Self {
         Self { x, y, z, w }
     }
 
     // creates a new tuple that is a point
-    pub fn new_point(x: f32, y: f32, z: f32) -> Self {
+    pub fn new_point(x: f64, y: f64, z: f64) -> Self {
         Self { x, y, z, w: 1.0 }
     }
 
     // creates a new tuple that is a vector
-    pub fn new_vector(x: f32, y: f32, z: f32) -> Self {
+    pub fn new_vector(x: f64, y: f64, z: f64) -> Self {
         Self { x, y, z, w: 0.0 }
     }
 
     // compare floating numbers
-    pub fn compare_floats(x: f32, y: f32) -> bool {
-        if f32::abs(x - y) < EPSILON {
+    pub fn compare_floats(x: f64, y: f64) -> bool {
+        if f64::abs(x - y) < EPSILON {
             return true;
         }
         false
     }
 
     // return the magnitude of the vector
-    pub fn magnitude(&self) -> f32 {
-        f32::sqrt(self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2))
+    pub fn magnitude(&self) -> f64 {
+        f64::sqrt(self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2))
     }
 
     // convert vector into unit vector
@@ -137,7 +137,7 @@ impl Tuple {
     }
 
     // create dot product of 2 vectors
-    pub fn dot_product(t1: &Tuple, t2: &Tuple) -> f32 {
+    pub fn dot_product(t1: &Tuple, t2: &Tuple) -> f64 {
         t1.x * t2.x + t1.y * t2.y + t1.z * t2.z + t1.w * t1.w
     }
 
@@ -151,7 +151,7 @@ impl Tuple {
     }
 }
 
-const EPSILON: f32 = 0.00001;
+const EPSILON: f64 = 0.00001;
 
 #[cfg(test)]
 mod tests {
@@ -208,7 +208,7 @@ mod tests {
         let point1 = Tuple::new_point(3.0, 2.0, 1.0);
         let point2 = Tuple::new_vector(5.0, 6.0, 7.0);
 
-        let new_tuple = point1.sub_tuples(&point2);
+        let new_tuple = point1 - point2;
 
         assert_eq!(new_tuple.x, -2.0);
         assert_eq!(new_tuple.y, -4.0);
@@ -221,7 +221,7 @@ mod tests {
         let point1 = Tuple::new_vector(3.0, 2.0, 1.0);
         let point2 = Tuple::new_vector(5.0, 6.0, 7.0);
 
-        let new_tuple = point1.sub_tuples(&point2);
+        let new_tuple = point1 - point2;
 
         assert_eq!(new_tuple.x, -2.0);
         assert_eq!(new_tuple.y, -4.0);
@@ -279,8 +279,8 @@ mod tests {
         assert_eq!(vector1.magnitude(), 1.0);
         assert_eq!(vector2.magnitude(), 1.0);
         assert_eq!(vector3.magnitude(), 1.0);
-        assert_eq!(vector4.magnitude(), f32::sqrt(14.0));
-        assert_eq!(vector5.magnitude(), f32::sqrt(14.0));
+        assert_eq!(vector4.magnitude(), f64::sqrt(14.0));
+        assert_eq!(vector5.magnitude(), f64::sqrt(14.0));
     }
 
     #[test]
@@ -293,9 +293,9 @@ mod tests {
         assert_eq!(
             vector2.normalize(),
             Tuple::new_vector(
-                1.0 / f32::sqrt(14.0),
-                2.0 / f32::sqrt(14.0),
-                3.0 / f32::sqrt(14.0)
+                1.0 / f64::sqrt(14.0),
+                2.0 / f64::sqrt(14.0),
+                3.0 / f64::sqrt(14.0)
             )
         );
         assert!(Tuple::compare_floats(vector3.normalize().magnitude(), 1.0));
