@@ -6,6 +6,7 @@ use std::fs;
 
 mod canvas;
 mod color;
+mod matrix;
 mod projectile;
 mod tuple;
 

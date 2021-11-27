@@ -58,12 +58,35 @@ mod tests {
         ];
         matrix.data = matrix_values;
 
-        assert_eq!(matrix.get(0, 0).unwrap(), 1.0);
-        assert_eq!(matrix.get(0, 3).unwrap(), 4.0);
-        assert_eq!(matrix.get(1, 0).unwrap(), 5.5);
-        assert_eq!(matrix.get(1, 2).unwrap(), 7.5);
-        assert_eq!(matrix.get(2, 2).unwrap(), 11.0);
-        assert_eq!(matrix.get(3, 0).unwrap(), 13.5);
-        assert_eq!(matrix.get(3, 2).unwrap(), 15.5);
+        assert_eq!(*matrix.get(0, 0).unwrap(), 1.0);
+        assert_eq!(*matrix.get(0, 3).unwrap(), 4.0);
+        assert_eq!(*matrix.get(1, 0).unwrap(), 5.5);
+        assert_eq!(*matrix.get(1, 2).unwrap(), 7.5);
+        assert_eq!(*matrix.get(2, 2).unwrap(), 11.0);
+        assert_eq!(*matrix.get(3, 0).unwrap(), 13.5);
+        assert_eq!(*matrix.get(3, 2).unwrap(), 15.5);
+    }
+
+    #[test]
+    fn create_matrix_3x3() {
+        let mut matrix: Matrix<f64> = Matrix::new_3x3();
+        let matrix_values: Vec<f64> = vec![-3.0, 5.0, 0.0, 1.0, -2.0, -7.0, 0.0, 1.0, 1.0];
+        matrix.data = matrix_values;
+
+        assert_eq!(*matrix.get(0, 0).unwrap(), -3.0);
+        assert_eq!(*matrix.get(1, 1).unwrap(), -2.0);
+        assert_eq!(*matrix.get(2, 2).unwrap(), 1.0);
+    }
+
+    #[test]
+    fn create_matrix_2x2() {
+        let mut matrix: Matrix<f64> = Matrix::new_2x2();
+        let matrix_values: Vec<f64> = vec![-3.0, 5.0, 1.0, -2.0];
+        matrix.data = matrix_values;
+
+        assert_eq!(*matrix.get(0, 0).unwrap(), -3.0);
+        assert_eq!(*matrix.get(0, 1).unwrap(), 5.0);
+        assert_eq!(*matrix.get(1, 0).unwrap(), 1.0);
+        assert_eq!(*matrix.get(1, 1).unwrap(), -2.0);
     }
 }

@@ -47,10 +47,13 @@ impl Canvas {
     ) -> Result<(), &'static str> {
         match self.pixels.get_mut(height) {
             None => Err("invalid index"),
-            Some(e) => {
-                e.insert(width, color);
-                Ok(())
-            }
+            Some(e) => match e.len() > width {
+                true => {
+                    e[width] = color;
+                    Ok(())
+                }
+                false => Err("invalid index"),
+            },
         }
     }
 
