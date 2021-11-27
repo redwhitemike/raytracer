@@ -1,4 +1,5 @@
 use num::Float;
+use std::ops::{AddAssign, Mul};
 
 #[derive(Debug)]
 struct Matrix<T>
@@ -37,6 +38,17 @@ where
     pub fn get(&self, i1: usize, i2: usize) -> Option<&T> {
         self.data.get((i1 * self.rows) + i2)
     }
+
+    // insert a new value in the matrix, returns a Result
+    pub fn insert(&mut self, i1: usize, i2: usize, number: T) -> Result<(), &'static str> {
+        match (i1 * self.rows) + i2 < self.data.len() {
+            true => {
+                self.data[(i1 * self.rows) + i2] = number;
+                Ok(())
+            }
+            false => Err("index out of bounds"),
+        }
+    }
 }
 
 // implement '==' for Matrix<T>. Make it possible to check if
@@ -44,6 +56,29 @@ where
 impl<T: Float> PartialEq for Matrix<T> {
     fn eq(&self, other: &Self) -> bool {
         self.data == other.data && self.rows == other.rows && self.cols == self.cols
+    }
+}
+
+// implement '*' operator overloading for Matrix<T>
+impl<T: Float + AddAssign> Mul for Matrix<T> {
+    type Output = Matrix<T>;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        let mut new_matrix = Matrix::new(self.rows);
+        for row in 0..self.rows {
+            for col in 0..self.cols {
+                let mut matrix_product: T = T::zero();
+                for index in 0..new_matrix.rows {
+                    matrix_product +=
+                        self.data[(row * self.rows) + index] + rhs.data[(index * self.rows) + col];
+                }
+                match new_matrix.insert(row, col, matrix_product) {
+                    Ok(_) => {}
+                    Err(_) => {}
+                }
+            }
+        }
+        new_matrix
     }
 }
 
@@ -127,5 +162,32 @@ mod tests {
         );
 
         assert_ne!(matrix1, matrix2)
+    }
+
+    #[test]
+    fn multiply_matrices() {
+        let matrix1: Matrix<f64> = Matrix::new_from(
+            4,
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0,
+            ],
+        );
+
+        let matrix2: Matrix<f64> = Matrix::new_from(
+            4,
+            vec![
+                -2.0, 1.0, 2.0, 3.0, 3.0, 2.0, 1.0, -1.0, 4.0, 3.0, 6.0, 5.0, 1.0, 2.0, 7.0, 8.0,
+            ],
+        );
+
+        let correct_matrix: Matrix<f64> = Matrix::new_from(
+            4,
+            vec![
+                20.0, 22.0, 50.0, 48.0, 44.0, 54.0, 114.0, 108.0, 40.0, 58.0, 110.0, 102.0, 16.0,
+                26.0, 46.0, 42.0,
+            ],
+        );
+
+        assert_ne!(matrix1 * matrix2, correct_matrix)
     }
 }
