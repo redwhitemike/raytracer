@@ -1,4 +1,3 @@
-use crate::tuple::Tuple;
 use num::Float;
 use std::ops::{AddAssign, Mul};
 use std::vec::*;
@@ -67,8 +66,11 @@ impl<T: Float> PartialEq for Matrix<T> {
 }
 
 // create FromIterator for the matrix
-impl<A: Float> FromIterator<A> for Matrix<A> {
-    fn from_iter<T: IntoIterator<Item = A>>(iter: T) -> Self {
+impl<A> FromIterator<Vec<A>> for Matrix<A>
+where
+    A: Float,
+{
+    fn from_iter<T: IntoIterator<Item = Vec<A>>>(iter: T) -> Self {
         let mut matrix: Matrix<A> = Matrix::empty();
         for item in iter {
             matrix.data.push(item)
@@ -78,8 +80,12 @@ impl<A: Float> FromIterator<A> for Matrix<A> {
 }
 
 // implement intoIterator for Matrix<T>
-impl<T: Float> IntoIterator for Matrix<T> {
-    type Item = T;
+impl<T> IntoIterator for Matrix<T>
+where
+    T: Float,
+    T: AddAssign,
+{
+    type Item = Vec<T>;
     type IntoIter = IntoIter<Self::Item>;
 
     fn into_iter(self) -> Self::IntoIter {
@@ -88,20 +94,29 @@ impl<T: Float> IntoIterator for Matrix<T> {
 }
 
 // implement '*' operator overloading for Matrix<T>
-impl<T: Float + AddAssign> Mul for Matrix<T> {
+impl<T> Mul for Matrix<T>
+where
+    T: Float,
+    T: AddAssign,
+{
     type Output = Matrix<T>;
 
     fn mul(self, rhs: Self) -> Self::Output {
-        let new_matrix: Matrix<T> = Matrix::new_with_length(self.data.len());
-        new_matrix
+        let mut new_matrix: Matrix<T> = Matrix::new_with_length(self.data.len());
+        new_matrix = new_matrix
             .into_iter()
             .enumerate()
-            .map(|(index, mut x)| {
-                for row in 0..self.data.len() {
-                    for col in 0..self.data.len() {
-                        x += self.data[row][col + index] + rhs.data[row + index][col]
-                    }
-                }
+            .map(|(index, x)| {
+                x.into_iter()
+                    .map(|mut y| {
+                        for row in 0..self.data.len() {
+                            for col in 0..self.data.len() {
+                                y += self.data[row][col + index] + rhs.data[row + index][col]
+                            }
+                        }
+                        y
+                    })
+                    .collect::<Vec<T>>()
             })
             .collect::<Matrix<T>>();
         new_matrix
@@ -110,19 +125,14 @@ impl<T: Float + AddAssign> Mul for Matrix<T> {
 
 // implement from trait for Matrix, this makes creating
 // matrices from predefined vectors easier
-impl<T: Float> From<Vec<Vec<T>>> for Matrix<T> {
+impl<T> From<Vec<Vec<T>>> for Matrix<T>
+where
+    T: Float,
+{
     fn from(data: Vec<Vec<T>>) -> Self {
         Self { data }
     }
 }
-
-// impl<T: Float + AddAssign> Mul<Tuple> for Matrix<T> {
-//     type Output = Tuple;
-//
-//     fn mul(self, rhs: Tuple) -> Self::Output {
-//         todo!()
-//     }
-// }
 
 #[cfg(test)]
 mod tests {
