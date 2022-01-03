@@ -3,10 +3,11 @@ use num::Float;
 use std::ops::{AddAssign, Mul};
 use std::vec::*;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Matrix<T>
 where
     T: Float,
+    T: Clone,
 {
     data: Vec<Vec<T>>,
 }
@@ -133,27 +134,18 @@ where
     T: Float,
     T: AddAssign,
 {
-    type Output = Matrix<T>;
+    type Output = Tuple<T>;
 
-    fn mul(self, rhs: Tuple<T>) -> Self::Output {
-        let mut new_matrix: Matrix<T> = Matrix::new_with_length(self.data.len());
-        new_matrix = new_matrix
-            .into_iter()
-            .enumerate()
-            .map(|(index, x)| {
-                x.into_iter()
-                    .map(|mut y| {
-                        for row in 0..self.data.len() {
-                            for col in 0..self.data.len() {
-                                y += self.data[row][col] + rhs[index];
-                            }
-                        }
-                        y
-                    })
-                    .collect::<Vec<T>>()
-            })
-            .collect::<Matrix<T>>();
-        new_matrix
+    fn mul(self, rhs: Tuple<T>) -> Tuple<T> {
+        let mut tuple = rhs.clone();
+        for i in 0..4 {
+            let mut right_number = T::zero();
+            for y in 0..4 {
+                right_number += self.data[i][y] * rhs[y]
+            }
+            tuple[i] = right_number
+        }
+        tuple
     }
 }
 
@@ -171,6 +163,7 @@ where
 #[cfg(test)]
 mod tests {
     use crate::matrix::Matrix;
+    use crate::Tuple;
 
     #[test]
     fn create_matrix_4x4() {
@@ -282,5 +275,17 @@ mod tests {
     }
 
     #[test]
-    fn multiply_matrices_tuple() {}
+    fn multiply_matrices_tuple() {
+        let matrix: Matrix<f64> = Matrix::from(vec![
+            vec![1.0, 2.0, 3.0, 4.0],
+            vec![2.0, 4.0, 4.0, 2.0],
+            vec![8.0, 6.0, 4.0, 1.0],
+            vec![0.0, 0.0, 0.0, 1.0],
+        ]);
+
+        let tuple: Tuple<f64> = Tuple::new(1.0, 2.0, 3.0, 1.0);
+        let correct_tuple: Tuple<f64> = Tuple::new(18.0, 24.0, 33.0, 1.0);
+
+        assert_eq!(matrix * tuple, correct_tuple)
+    }
 }
