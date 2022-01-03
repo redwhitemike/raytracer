@@ -1,6 +1,6 @@
 use num::Float;
 use std::fmt::{Display, Formatter};
-use std::ops::{Add, Div, Mul, Neg, Sub};
+use std::ops::{Add, Div, Index, IndexMut, Mul, Neg, Sub};
 /**
    Author: Maciek Mika
    This is the tuple file. It contains the tuple struct information and methods.
@@ -25,6 +25,40 @@ where
 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "x:{} y:{} z:{} w:{}", self.x, self.y, self.z, self.w)
+    }
+}
+
+// implement indexing trait on Tuple
+// makes it possible to do tuple[0] which in turn returns tuple.x
+impl<T> Index<usize> for Tuple<T>
+where
+    T: Float,
+{
+    type Output = T;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        match index {
+            0 => &self.x,
+            1 => &self.y,
+            2 => &self.z,
+            3 => &self.w,
+            _ => panic!("Out of bounds!"),
+        }
+    }
+}
+
+impl<T> IndexMut<usize> for Tuple<T>
+where
+    T: Float,
+{
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        match index {
+            0 => &mut self.x,
+            1 => &mut self.y,
+            2 => &mut self.z,
+            3 => &mut self.w,
+            _ => panic!("Out of bounds!"),
+        }
     }
 }
 
