@@ -59,7 +59,10 @@ where
 
 // implement '==' for Matrix<T>. Make it possible to check if
 // 2 matrixes are the same
-impl<T: Float> PartialEq for Matrix<T> {
+impl<T> PartialEq for Matrix<T>
+where
+    T: Float,
+{
     fn eq(&self, other: &Self) -> bool {
         self.data == other.data
     }

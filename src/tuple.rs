@@ -8,7 +8,10 @@ use std::ops::{Add, Div, Mul, Neg, Sub};
 */
 
 #[derive(Debug, Clone)]
-pub struct Tuple<T> {
+pub struct Tuple<T>
+where
+    T: Float,
+{
     pub x: T,
     pub y: T,
     pub z: T,
