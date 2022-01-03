@@ -1,3 +1,4 @@
+use crate::Tuple;
 use num::Float;
 use std::ops::{AddAssign, Mul};
 use std::vec::*;
@@ -115,6 +116,36 @@ where
                         for row in 0..self.data.len() {
                             for col in 0..self.data.len() {
                                 y += self.data[row][index] + rhs.data[index][col]
+                            }
+                        }
+                        y
+                    })
+                    .collect::<Vec<T>>()
+            })
+            .collect::<Matrix<T>>();
+        new_matrix
+    }
+}
+
+// implement multiplication between a Matrix<T> and Tuple<T>
+impl<T> Mul<Tuple<T>> for Matrix<T>
+where
+    T: Float,
+    T: AddAssign,
+{
+    type Output = Matrix<T>;
+
+    fn mul(self, rhs: Tuple<T>) -> Self::Output {
+        let mut new_matrix: Matrix<T> = Matrix::new_with_length(self.data.len());
+        new_matrix = new_matrix
+            .into_iter()
+            .enumerate()
+            .map(|(index, x)| {
+                x.into_iter()
+                    .map(|mut y| {
+                        for row in 0..self.data.len() {
+                            for col in 0..self.data.len() {
+                                y += self.data[row][col] + rhs[index];
                             }
                         }
                         y
