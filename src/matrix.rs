@@ -114,7 +114,7 @@ where
                     .map(|mut y| {
                         for row in 0..self.data.len() {
                             for col in 0..self.data.len() {
-                                y += self.data[row][col + index] + rhs.data[row + index][col]
+                                y += self.data[row][index] + rhs.data[index][col]
                             }
                         }
                         y
