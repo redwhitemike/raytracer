@@ -1,3 +1,5 @@
+#![warn(rust_2018_idioms)]
+
 use crate::canvas::Canvas;
 use crate::color::Color;
 use crate::projectile::{Environment, Projectile};
@@ -27,7 +29,6 @@ fn main() {
 
     let mut canvas = Canvas::new_with_color(900, 500, Color::new(0.0, 0.0, 0.0));
 
-    let mut count = 0;
     while proj.position.y > 0.0 {
         match canvas.write_pixel(
             proj.position.x as usize,
@@ -39,10 +40,16 @@ fn main() {
                 println!("{}", e)
             }
         }
-        count += 1;
         proj.tick(env.clone());
     }
 
     let ppm = canvas.to_ppm();
-    fs::write("first_unit.ppm", ppm);
+    match fs::write("first_unit.ppm", ppm) {
+        Ok(_) => {
+            println!("printed ray tracing file!")
+        }
+        Err(_) => {
+            println!("An error occurred when saving the ray tracing file")
+        }
+    }
 }

@@ -1,3 +1,4 @@
+use num::Float;
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, Div, Mul, Neg, Sub};
 /**
@@ -7,21 +8,28 @@ use std::ops::{Add, Div, Mul, Neg, Sub};
 */
 
 #[derive(Debug, Clone)]
-pub struct Tuple {
-    pub x: f64,
-    pub y: f64,
-    pub z: f64,
-    pub w: f64,
+pub struct Tuple<T> {
+    pub x: T,
+    pub y: T,
+    pub z: T,
+    pub w: T,
 }
 
-impl Display for Tuple {
+impl<T> Display for Tuple<T>
+where
+    T: Float,
+    T: Display,
+{
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "x:{} y:{} z:{} w:{}", self.x, self.y, self.z, self.w)
     }
 }
 
 // implement '-' operator overloading
-impl Neg for Tuple {
+impl<T> Neg for Tuple<T>
+where
+    T: Float,
+{
     type Output = ();
 
     fn neg(mut self) -> Self::Output {
@@ -33,8 +41,11 @@ impl Neg for Tuple {
 }
 
 // implement '+' operator overloading
-impl Add for Tuple {
-    type Output = Tuple;
+impl<T> Add for Tuple<T>
+where
+    T: Float,
+{
+    type Output = Tuple<T>;
 
     fn add(self, rhs: Self) -> Self::Output {
         Tuple {
@@ -47,8 +58,11 @@ impl Add for Tuple {
 }
 
 // implement '-' operator overloading
-impl Sub for Tuple {
-    type Output = Tuple;
+impl<T> Sub for Tuple<T>
+where
+    T: Float,
+{
+    type Output = Tuple<T>;
 
     fn sub(self, rhs: Self) -> Self::Output {
         Tuple {
@@ -61,7 +75,10 @@ impl Sub for Tuple {
 }
 
 // implement '==' operator overload for comparing tuples
-impl PartialEq for Tuple {
+impl<T> PartialEq<Tuple<T>> for Tuple<T>
+where
+    T: Float,
+{
     fn eq(&self, other: &Self) -> bool {
         Tuple::compare_floats(self.x, other.x)
             && Tuple::compare_floats(self.y, other.y)
@@ -70,10 +87,13 @@ impl PartialEq for Tuple {
 }
 
 // implement operator overloading for multiplying tuple
-impl Mul<f64> for Tuple {
-    type Output = Tuple;
+impl<T> Mul<T> for Tuple<T>
+where
+    T: Float,
+{
+    type Output = Tuple<T>;
 
-    fn mul(self, rhs: f64) -> Self::Output {
+    fn mul(self, rhs: T) -> Self::Output {
         Tuple {
             x: self.x * rhs,
             y: self.y * rhs,
@@ -84,10 +104,13 @@ impl Mul<f64> for Tuple {
 }
 
 // implement operator overloading for dividing tuple
-impl Div<f64> for Tuple {
-    type Output = Tuple;
+impl<T> Div<T> for Tuple<T>
+where
+    T: Float,
+{
+    type Output = Tuple<T>;
 
-    fn div(self, rhs: f64) -> Self::Output {
+    fn div(self, rhs: T) -> Self::Output {
         Tuple {
             x: self.x / rhs,
             y: self.y / rhs,
@@ -97,37 +120,58 @@ impl Div<f64> for Tuple {
     }
 }
 
-impl Tuple {
+impl<T> Tuple<T>
+where
+    T: Float,
+{
     // create new tuple
-    pub fn new(x: f64, y: f64, z: f64, w: f64) -> Self {
+    pub fn new(x: T, y: T, z: T, w: T) -> Self {
         Self { x, y, z, w }
     }
 
     // creates a new tuple that is a point
-    pub fn new_point(x: f64, y: f64, z: f64) -> Self {
-        Self { x, y, z, w: 1.0 }
+    pub fn new_point(x: T, y: T, z: T) -> Self {
+        Self {
+            x,
+            y,
+            z,
+            w: T::one(),
+        }
     }
 
     // creates a new tuple that is a vector
-    pub fn new_vector(x: f64, y: f64, z: f64) -> Self {
-        Self { x, y, z, w: 0.0 }
+    pub fn new_vector(x: T, y: T, z: T) -> Self {
+        Self {
+            x,
+            y,
+            z,
+            w: T::zero(),
+        }
     }
 
     // compare floating numbers
-    pub fn compare_floats(x: f64, y: f64) -> bool {
-        if f64::abs(x - y) < EPSILON {
-            return true;
+    pub fn compare_floats(x: T, y: T) -> bool
+    where
+        T: Float,
+    {
+        match T::from(EPSILON) {
+            None => return false,
+            Some(eps) => {
+                if T::abs(x - y) < eps {
+                    return true;
+                }
+                false
+            }
         }
-        false
     }
 
     // return the magnitude of the vector
-    pub fn magnitude(&self) -> f64 {
-        f64::sqrt(self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2))
+    pub fn magnitude(&self) -> T {
+        T::sqrt(self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2))
     }
 
     // convert vector into unit vector
-    pub fn normalize(&self) -> Tuple {
+    pub fn normalize(&self) -> Tuple<T> {
         Tuple {
             x: self.x / self.magnitude(),
             y: self.y / self.magnitude(),
@@ -137,12 +181,12 @@ impl Tuple {
     }
 
     // create dot product of 2 vectors
-    pub fn dot_product(t1: &Tuple, t2: &Tuple) -> f64 {
+    pub fn dot_product(t1: &Tuple<T>, t2: &Tuple<T>) -> T {
         t1.x * t2.x + t1.y * t2.y + t1.z * t2.z + t1.w * t1.w
     }
 
     // create cross product of 2 vectors
-    pub fn cross_product(t1: &Tuple, t2: &Tuple) -> Tuple {
+    pub fn cross_product(t1: &Tuple<T>, t2: &Tuple<T>) -> Tuple<T> {
         Tuple::new_vector(
             t1.y * t2.z - t1.z * t2.y,
             t1.z * t2.x - t1.x * t2.z,
