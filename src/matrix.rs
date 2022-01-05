@@ -66,6 +66,17 @@ where
             vec![T::zero(), T::zero(), T::zero(), T::one()],
         ])
     }
+
+    // return a transposed version of the matrix
+    pub fn transpose(&self) -> Matrix<T> {
+        let mut new_matrix = Matrix::<T>::new_with_length(self.data.len());
+        for row in 0..4 as usize {
+            for col in 0..4 as usize {
+                new_matrix.data[col][row] = self.data[row][col]
+            }
+        }
+        new_matrix
+    }
 }
 
 // implement '==' for Matrix<T>. Make it possible to check if
@@ -301,5 +312,31 @@ mod tests {
 
         let check = matrix.clone();
         assert_eq!(matrix * Matrix::<f64>::identity_matrix(), check)
+    }
+
+    #[test]
+    fn transpose_matrix() {
+        let matrix: Matrix<f64> = Matrix::from(vec![
+            vec![0.0, 9.0, 3.0, 0.0],
+            vec![9.0, 8.0, 0.0, 8.0],
+            vec![1.0, 8.0, 5.0, 3.0],
+            vec![0.0, 0.0, 5.0, 8.0],
+        ]);
+
+        let transposed_matrix: Matrix<f64> = Matrix::from(vec![
+            vec![0.0, 9.0, 1.0, 0.0],
+            vec![9.0, 8.0, 8.0, 0.0],
+            vec![3.0, 0.0, 5.0, 5.0],
+            vec![0.0, 8.0, 3.0, 8.0],
+        ]);
+
+        assert_eq!(matrix.transpose(), transposed_matrix)
+    }
+
+    #[test]
+    fn transpose_identity_matrix() {
+        let identity_matrix = Matrix::<f64>::identity_matrix();
+
+        assert_eq!(identity_matrix.transpose(), identity_matrix)
     }
 }
