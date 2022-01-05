@@ -117,9 +117,10 @@ where
 
     fn mul(self, rhs: Self) -> Self::Output {
         let mut new_matrix: Matrix<T> = Matrix::new_with_length(self.data.len());
-        for row in 0..self.data.len() {
-            for col in 0..self.data.len() {
-                for index in 0..4 as usize {
+        let size = self.data.len();
+        for row in 0..size {
+            for col in 0..size {
+                for index in 0..size {
                     new_matrix.data[row][col] += self.data[row][index] * rhs.data[index][col]
                 }
             }

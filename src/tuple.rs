@@ -192,13 +192,8 @@ where
         T: Float,
     {
         match T::from(EPSILON) {
-            None => return false,
-            Some(eps) => {
-                if T::abs(x - y) < eps {
-                    return true;
-                }
-                false
-            }
+            None => false,
+            Some(eps) => T::abs(x - y) < eps,
         }
     }
 
