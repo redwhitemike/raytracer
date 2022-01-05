@@ -57,6 +57,15 @@ where
             },
         }
     }
+
+    pub fn identity_matrix() -> Matrix<T> {
+        Matrix::from(vec![
+            vec![T::one(), T::zero(), T::zero(), T::zero()],
+            vec![T::zero(), T::one(), T::zero(), T::zero()],
+            vec![T::zero(), T::zero(), T::one(), T::zero()],
+            vec![T::zero(), T::zero(), T::zero(), T::one()],
+        ])
+    }
 }
 
 // implement '==' for Matrix<T>. Make it possible to check if
@@ -108,22 +117,13 @@ where
 
     fn mul(self, rhs: Self) -> Self::Output {
         let mut new_matrix: Matrix<T> = Matrix::new_with_length(self.data.len());
-        new_matrix = new_matrix
-            .into_iter()
-            .enumerate()
-            .map(|(index, x)| {
-                x.into_iter()
-                    .map(|mut y| {
-                        for row in 0..self.data.len() {
-                            for col in 0..self.data.len() {
-                                y += self.data[row][index] + rhs.data[index][col]
-                            }
-                        }
-                        y
-                    })
-                    .collect::<Vec<T>>()
-            })
-            .collect::<Matrix<T>>();
+        for row in 0..self.data.len() {
+            for col in 0..self.data.len() {
+                for index in 0..4 as usize {
+                    new_matrix.data[row][col] += self.data[row][index] * rhs.data[index][col]
+                }
+            }
+        }
         new_matrix
     }
 }
@@ -271,7 +271,7 @@ mod tests {
             vec![16.0, 26.0, 46.0, 42.0],
         ]);
 
-        assert_ne!(matrix1 * matrix2, correct_matrix)
+        assert_eq!(matrix1 * matrix2, correct_matrix)
     }
 
     #[test]
@@ -287,5 +287,18 @@ mod tests {
         let correct_tuple: Tuple<f64> = Tuple::new(18.0, 24.0, 33.0, 1.0);
 
         assert_eq!(matrix * tuple, correct_tuple)
+    }
+
+    #[test]
+    fn identity_matrices() {
+        let matrix: Matrix<f64> = Matrix::from(vec![
+            vec![0.0, 1.0, 2.0, 4.0],
+            vec![1.0, 2.0, 4.0, 8.0],
+            vec![2.0, 4.0, 8.0, 16.0],
+            vec![4.0, 8.0, 16.0, 32.0],
+        ]);
+
+        let check = matrix.clone();
+        assert_eq!(matrix * Matrix::<f64>::identity_matrix(), check)
     }
 }
