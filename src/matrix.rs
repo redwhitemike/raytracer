@@ -58,6 +58,7 @@ where
         }
     }
 
+    // return a identity matrix
     pub fn identity_matrix() -> Matrix<T> {
         Matrix::from(vec![
             vec![T::one(), T::zero(), T::zero(), T::zero()],
