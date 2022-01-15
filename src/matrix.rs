@@ -1,38 +1,26 @@
 use crate::Tuple;
 use num::Float;
+use std::array::IntoIter;
 use std::ops::{AddAssign, Mul};
-use std::vec::*;
 
 #[derive(Debug, Clone)]
-struct Matrix<T>
+struct Matrix<T, const N: usize>
 where
     T: Float,
     T: Clone,
 {
-    data: Vec<Vec<T>>,
+    data: [[T; N]; N],
 }
 
-impl<T> Matrix<T>
+impl<T, const N: usize> Matrix<T, N>
 where
     T: Float,
     T: PartialEq,
 {
     // create a new matrix with given size
-    pub fn new(size: usize) -> Self {
+    pub fn new() -> Self {
         Self {
-            data: vec![vec![T::zero(); size]; size],
-        }
-    }
-
-    // create an empty matrix
-    pub fn empty() -> Self {
-        Self { data: vec![vec![]] }
-    }
-
-    // create a matrix from a given vector of floats
-    pub fn new_with_length(length: usize) -> Self {
-        Self {
-            data: vec![vec![T::zero(); length]; length],
+            data: [[T::zero(); N]; N],
         }
     }
 
@@ -59,7 +47,7 @@ where
     }
 
     // return a identity matrix
-    pub fn identity_matrix() -> Matrix<T> {
+    pub fn identity_matrix() -> Matrix<T, N> {
         Matrix::from(vec![
             vec![T::one(), T::zero(), T::zero(), T::zero()],
             vec![T::zero(), T::one(), T::zero(), T::zero()],
@@ -69,11 +57,69 @@ where
     }
 
     // return a transposed version of the matrix
-    pub fn transpose(&self) -> Matrix<T> {
-        let mut new_matrix = Matrix::<T>::new_with_length(self.data.len());
+    pub fn transpose(&self) -> Matrix<T, N> {
+        let mut new_matrix = Matrix::<T, N>::new();
         for row in 0..4 as usize {
             for col in 0..4 as usize {
                 new_matrix.data[col][row] = self.data[row][col]
+            }
+        }
+        new_matrix
+    }
+
+    // return the determinant of a matrix that is 2x2
+    pub fn determinant(&self) -> Result<T, &'static str> {
+        match self.data.len() {
+            2 => Ok(self.data[0][0] * self.data[1][1] - self.data[0][1] * self.data[1][0]),
+            _ => Err("wrong length for determinant matrix"),
+        }
+    }
+}
+
+impl<T> Matrix<T, 3>
+where
+    T: Float,
+    T: PartialEq,
+{
+    // create a sub matrix of size 2x2, delete the given row and col
+    pub fn sub_matrix(&self, row: usize, col: usize) -> Matrix<T, 2> {
+        let mut new_matrix = Matrix::<T, 2>::new();
+        let mut row_index: usize = 0;
+        for x in 0..3 {
+            if x != row {
+                let mut col_index: usize = 0;
+                for y in 0..3 {
+                    if y != col {
+                        new_matrix.data[row_index][col_index] = self.data[x][y];
+                        col_index += 1
+                    }
+                }
+                row_index += 1
+            }
+        }
+        new_matrix
+    }
+}
+
+impl<T> Matrix<T, 4>
+where
+    T: Float,
+    T: PartialEq,
+{
+    // create a sub matrix of size 3x3, delete the given row and col
+    pub fn sub_matrix(&self, row: usize, col: usize) -> Matrix<T, 3> {
+        let mut new_matrix = Matrix::<T, 3>::new();
+        let mut row_index: usize = 0;
+        for x in 0..4 {
+            if x != row {
+                let mut col_index: usize = 0;
+                for y in 0..4 {
+                    if y != col {
+                        new_matrix.data[row_index][col_index] = self.data[x][y];
+                        col_index += 1
+                    }
+                }
+                row_index += 1
             }
         }
         new_matrix
@@ -82,7 +128,7 @@ where
 
 // implement '==' for Matrix<T>. Make it possible to check if
 // 2 matrixes are the same
-impl<T> PartialEq for Matrix<T>
+impl<T, const N: usize> PartialEq for Matrix<T, N>
 where
     T: Float,
 {
@@ -92,27 +138,34 @@ where
 }
 
 // create FromIterator for the matrix
-impl<A> FromIterator<Vec<A>> for Matrix<A>
+impl<A, const N: usize> FromIterator<Vec<A>> for Matrix<A, N>
 where
     A: Float,
 {
     fn from_iter<T: IntoIterator<Item = Vec<A>>>(iter: T) -> Self {
-        let mut matrix: Matrix<A> = Matrix::empty();
-        for item in iter {
-            matrix.data.push(item)
+        let mut matrix: Matrix<A, N> = Matrix::new();
+        let mut row_index = 0;
+
+        for row in iter {
+            let mut col_index = 0;
+            for col in row {
+                matrix.data[row_index][col_index] = col;
+                col_index += 1
+            }
+            row_index += 1
         }
         matrix
     }
 }
 
 // implement intoIterator for Matrix<T>
-impl<T> IntoIterator for Matrix<T>
+impl<T, const N: usize> IntoIterator for Matrix<T, N>
 where
     T: Float,
     T: AddAssign,
 {
-    type Item = Vec<T>;
-    type IntoIter = IntoIter<Self::Item>;
+    type Item = [T; N];
+    type IntoIter = IntoIter<Self::Item, N>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.data.into_iter()
@@ -120,15 +173,15 @@ where
 }
 
 // implement '*' operator overloading for Matrix<T>
-impl<T> Mul for Matrix<T>
+impl<T, const N: usize> Mul for Matrix<T, N>
 where
     T: Float,
     T: AddAssign,
 {
-    type Output = Matrix<T>;
+    type Output = Matrix<T, N>;
 
     fn mul(self, rhs: Self) -> Self::Output {
-        let mut new_matrix: Matrix<T> = Matrix::new_with_length(self.data.len());
+        let mut new_matrix: Matrix<T, N> = Matrix::new();
         let size = self.data.len();
         for row in 0..size {
             for col in 0..size {
@@ -141,8 +194,8 @@ where
     }
 }
 
-// implement multiplication between a Matrix<T> and Tuple<T>
-impl<T> Mul<Tuple<T>> for Matrix<T>
+// implement multiplication between a Matrix<T, 4> and Tuple<T>
+impl<T, const N: usize> Mul<Tuple<T>> for Matrix<T, N>
 where
     T: Float,
     T: AddAssign,
@@ -164,12 +217,30 @@ where
 
 // implement from trait for Matrix, this makes creating
 // matrices from predefined vectors easier
-impl<T> From<Vec<Vec<T>>> for Matrix<T>
+impl<T, const N: usize> From<Vec<Vec<T>>> for Matrix<T, N>
 where
     T: Float,
 {
     fn from(data: Vec<Vec<T>>) -> Self {
-        Self { data }
+        match data.len() == N {
+            true => {
+                let mut new_matrix = Matrix::<T, N>::new();
+
+                for x in 0..N {
+                    for y in 0..N {
+                        new_matrix.data[x][y] = data[x][y]
+                    }
+                }
+                new_matrix
+            }
+            false => {
+                panic!(
+                    "tried to convert vec with length {} into array of length {}",
+                    data.len(),
+                    N
+                )
+            }
+        }
     }
 }
 
@@ -186,7 +257,7 @@ mod tests {
             vec![9.0, 10.0, 11.0, 12.0],
             vec![13.5, 14.5, 15.5, 16.5],
         ];
-        let matrix: Matrix<f64> = Matrix::from(matrix_values);
+        let matrix: Matrix<f64, 4> = Matrix::from(matrix_values);
 
         assert_eq!(*matrix.get(0, 0).unwrap(), 1.0);
         assert_eq!(*matrix.get(0, 3).unwrap(), 4.0);
@@ -205,7 +276,7 @@ mod tests {
             vec![0.0, 1.0, 1.0],
         ];
 
-        let matrix: Matrix<f64> = Matrix::from(matrix_values);
+        let matrix: Matrix<f64, 3> = Matrix::from(matrix_values);
 
         assert_eq!(*matrix.get(0, 0).unwrap(), -3.0);
         assert_eq!(*matrix.get(1, 1).unwrap(), -2.0);
@@ -215,7 +286,7 @@ mod tests {
     #[test]
     fn create_matrix_2x2() {
         let matrix_values: Vec<Vec<f64>> = vec![vec![-3.0, 5.0], vec![1.0, -2.0]];
-        let matrix: Matrix<f64> = Matrix::from(matrix_values);
+        let matrix: Matrix<f64, 2> = Matrix::from(matrix_values);
 
         assert_eq!(*matrix.get(0, 0).unwrap(), -3.0);
         assert_eq!(*matrix.get(0, 1).unwrap(), 5.0);
@@ -225,14 +296,14 @@ mod tests {
 
     #[test]
     fn compare_matrix_equal() {
-        let matrix1: Matrix<f64> = Matrix::from(vec![
+        let matrix1: Matrix<f64, 4> = Matrix::from(vec![
             vec![1.0, 2.0, 3.0, 4.0],
             vec![5.0, 6.0, 7.0, 8.0],
             vec![9.0, 8.0, 7.0, 6.0],
             vec![5.0, 4.0, 3.0, 2.0],
         ]);
 
-        let matrix2: Matrix<f64> = Matrix::from(vec![
+        let matrix2: Matrix<f64, 4> = Matrix::from(vec![
             vec![1.0, 2.0, 3.0, 4.0],
             vec![5.0, 6.0, 7.0, 8.0],
             vec![9.0, 8.0, 7.0, 6.0],
@@ -244,14 +315,14 @@ mod tests {
 
     #[test]
     fn compare_matrix_not_equal() {
-        let matrix1: Matrix<f64> = Matrix::from(vec![
+        let matrix1: Matrix<f64, 4> = Matrix::from(vec![
             vec![1.0, 2.0, 3.0, 4.0],
             vec![5.0, 6.0, 7.0, 8.0],
             vec![9.0, 8.0, 7.0, 6.0],
             vec![5.0, 4.0, 3.0, 2.0],
         ]);
 
-        let matrix2: Matrix<f64> = Matrix::from(vec![
+        let matrix2: Matrix<f64, 4> = Matrix::from(vec![
             vec![2.0, 3.0, 4.0, 5.0],
             vec![6.0, 7.0, 8.0, 9.0],
             vec![8.0, 7.0, 6.0, 5.0],
@@ -263,21 +334,21 @@ mod tests {
 
     #[test]
     fn multiply_matrices() {
-        let matrix1: Matrix<f64> = Matrix::from(vec![
+        let matrix1: Matrix<f64, 4> = Matrix::from(vec![
             vec![1.0, 2.0, 3.0, 4.0],
             vec![5.0, 6.0, 7.0, 8.0],
             vec![9.0, 8.0, 7.0, 6.0],
             vec![5.0, 4.0, 3.0, 2.0],
         ]);
 
-        let matrix2: Matrix<f64> = Matrix::from(vec![
+        let matrix2: Matrix<f64, 4> = Matrix::from(vec![
             vec![-2.0, 1.0, 2.0, 3.0],
             vec![3.0, 2.0, 1.0, -1.0],
             vec![4.0, 3.0, 6.0, 5.0],
             vec![1.0, 2.0, 7.0, 8.0],
         ]);
 
-        let correct_matrix: Matrix<f64> = Matrix::from(vec![
+        let correct_matrix: Matrix<f64, 4> = Matrix::from(vec![
             vec![20.0, 22.0, 50.0, 48.0],
             vec![44.0, 54.0, 114.0, 108.0],
             vec![40.0, 58.0, 110.0, 102.0],
@@ -289,7 +360,7 @@ mod tests {
 
     #[test]
     fn multiply_matrices_tuple() {
-        let matrix: Matrix<f64> = Matrix::from(vec![
+        let matrix: Matrix<f64, 4> = Matrix::from(vec![
             vec![1.0, 2.0, 3.0, 4.0],
             vec![2.0, 4.0, 4.0, 2.0],
             vec![8.0, 6.0, 4.0, 1.0],
@@ -304,7 +375,7 @@ mod tests {
 
     #[test]
     fn identity_matrices() {
-        let matrix: Matrix<f64> = Matrix::from(vec![
+        let matrix: Matrix<f64, 4> = Matrix::from(vec![
             vec![0.0, 1.0, 2.0, 4.0],
             vec![1.0, 2.0, 4.0, 8.0],
             vec![2.0, 4.0, 8.0, 16.0],
@@ -312,19 +383,19 @@ mod tests {
         ]);
 
         let check = matrix.clone();
-        assert_eq!(matrix * Matrix::<f64>::identity_matrix(), check)
+        assert_eq!(matrix * Matrix::<f64, 4>::identity_matrix(), check)
     }
 
     #[test]
     fn transpose_matrix() {
-        let matrix: Matrix<f64> = Matrix::from(vec![
+        let matrix: Matrix<f64, 4> = Matrix::from(vec![
             vec![0.0, 9.0, 3.0, 0.0],
             vec![9.0, 8.0, 0.0, 8.0],
             vec![1.0, 8.0, 5.0, 3.0],
             vec![0.0, 0.0, 5.0, 8.0],
         ]);
 
-        let transposed_matrix: Matrix<f64> = Matrix::from(vec![
+        let transposed_matrix: Matrix<f64, 4> = Matrix::from(vec![
             vec![0.0, 9.0, 1.0, 0.0],
             vec![9.0, 8.0, 8.0, 0.0],
             vec![3.0, 0.0, 5.0, 5.0],
@@ -336,8 +407,50 @@ mod tests {
 
     #[test]
     fn transpose_identity_matrix() {
-        let identity_matrix = Matrix::<f64>::identity_matrix();
+        let identity_matrix = Matrix::<f64, 4>::identity_matrix();
 
         assert_eq!(identity_matrix.transpose(), identity_matrix)
+    }
+
+    #[test]
+    fn calculate_determinant() {
+        let matrix = Matrix::<f64, 2>::from(vec![vec![1.0, 5.0], vec![-3.0, 2.0]]);
+        match matrix.determinant() {
+            Ok(det) => {
+                assert_eq!(det, 17.0)
+            }
+            Err(_) => {
+                assert_eq!(true, false)
+            }
+        }
+    }
+
+    #[test]
+    fn sub_matrix_3x3() {
+        let matrix = Matrix::<f64, 3>::from(vec![
+            vec![1.0, 5.0, 0.0],
+            vec![-3.0, 2.0, 7.0],
+            vec![0.0, 6.0, -3.0],
+        ]);
+        let sub_matrix = Matrix::<f64, 2>::from(vec![vec![-3.0, 2.0], vec![0.0, 6.0]]);
+        assert_eq!(matrix.sub_matrix(0, 2), sub_matrix)
+    }
+
+    #[test]
+    fn sub_matrix_4x4() {
+        let matrix = Matrix::<f64, 4>::from(vec![
+            vec![-6.0, 1.0, 1.0, 6.0],
+            vec![-8.0, 5.0, 8.0, 6.0],
+            vec![-1.0, 0.0, 8.0, 2.0],
+            vec![-7.0, 1.0, -1.0, 1.0],
+        ]);
+
+        let sub_matrix = Matrix::<f64, 3>::from(vec![
+            vec![-6.0, 1.0, 6.0],
+            vec![-8.0, 8.0, 6.0],
+            vec![-7.0, -1.0, 1.0],
+        ]);
+
+        assert_eq!(matrix.sub_matrix(2, 1), sub_matrix)
     }
 }
