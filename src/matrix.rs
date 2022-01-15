@@ -66,41 +66,9 @@ where
         }
         new_matrix
     }
-
-    // return the determinant of a matrix that is 2x2
-    pub fn determinant(&self) -> Result<T, &'static str> {
-        match self.data.len() {
-            2 => Ok(self.data[0][0] * self.data[1][1] - self.data[0][1] * self.data[1][0]),
-            _ => Err("wrong length for determinant matrix"),
-        }
-    }
 }
 
-impl<T> Matrix<T, 3>
-where
-    T: Float,
-    T: PartialEq,
-{
-    // create a sub matrix of size 2x2, delete the given row and col
-    pub fn sub_matrix(&self, row: usize, col: usize) -> Matrix<T, 2> {
-        let mut new_matrix = Matrix::<T, 2>::new();
-        let mut row_index: usize = 0;
-        for x in 0..3 {
-            if x != row {
-                let mut col_index: usize = 0;
-                for y in 0..3 {
-                    if y != col {
-                        new_matrix.data[row_index][col_index] = self.data[x][y];
-                        col_index += 1
-                    }
-                }
-                row_index += 1
-            }
-        }
-        new_matrix
-    }
-}
-
+// functions for Matrix with a constant size of 4
 impl<T> Matrix<T, 4>
 where
     T: Float,
@@ -126,6 +94,42 @@ where
     }
 }
 
+// functions for Matrix with a constant size of 3
+impl<T> Matrix<T, 3>
+where
+    T: Float,
+    T: PartialEq,
+{
+    // create a sub matrix of size 2x2, delete the given row and col
+    pub fn sub_matrix(&self, row: usize, col: usize) -> Matrix<T, 2> {
+        let mut new_matrix = Matrix::<T, 2>::new();
+        let mut row_index: usize = 0;
+        for x in 0..3 {
+            if x != row {
+                let mut col_index: usize = 0;
+                for y in 0..3 {
+                    if y != col {
+                        new_matrix.data[row_index][col_index] = self.data[x][y];
+                        col_index += 1
+                    }
+                }
+                row_index += 1
+            }
+        }
+        new_matrix
+    }
+}
+
+impl<T> Matrix<T, 2>
+where
+    T: Float,
+    T: PartialEq,
+{
+    // return the determinant of a matrix that is 2x2
+    pub fn determinant(&self) -> T {
+        self.data[0][0] * self.data[1][1] - self.data[0][1] * self.data[1][0]
+    }
+}
 // implement '==' for Matrix<T>. Make it possible to check if
 // 2 matrixes are the same
 impl<T, const N: usize> PartialEq for Matrix<T, N>
@@ -415,14 +419,7 @@ mod tests {
     #[test]
     fn calculate_determinant() {
         let matrix = Matrix::<f64, 2>::from(vec![vec![1.0, 5.0], vec![-3.0, 2.0]]);
-        match matrix.determinant() {
-            Ok(det) => {
-                assert_eq!(det, 17.0)
-            }
-            Err(_) => {
-                assert_eq!(true, false)
-            }
-        }
+        assert_eq!(matrix.determinant(), 17.0)
     }
 
     #[test]
