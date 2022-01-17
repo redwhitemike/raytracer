@@ -59,8 +59,8 @@ where
     // return a transposed version of the matrix
     pub fn transpose(&self) -> Matrix<T, N> {
         let mut new_matrix = Matrix::<T, N>::new();
-        for row in 0..4 as usize {
-            for col in 0..4 as usize {
+        for row in 0..N {
+            for col in 0..N {
                 new_matrix.data[col][row] = self.data[row][col]
             }
         }
@@ -74,49 +74,71 @@ where
     T: Float,
     T: PartialEq,
 {
-    // create a sub matrix of size 3x3, delete the given row and col
+    // create a sub matrix of size 3x3, by deleting the given row and col
     pub fn sub_matrix(&self, row: usize, col: usize) -> Matrix<T, 3> {
         let mut new_matrix = Matrix::<T, 3>::new();
-        let mut row_index: usize = 0;
+        let mut matrix_row: usize = 0;
         for x in 0..4 {
             if x != row {
-                let mut col_index: usize = 0;
+                let mut matrix_col: usize = 0;
                 for y in 0..4 {
                     if y != col {
-                        new_matrix.data[row_index][col_index] = self.data[x][y];
-                        col_index += 1
+                        new_matrix.data[matrix_row][matrix_col] = self.data[x][y];
+                        matrix_col += 1
                     }
                 }
-                row_index += 1
+                matrix_row += 1
             }
         }
         new_matrix
     }
 }
 
-// functions for Matrix with a constant size of 3
+// functions for Matrix with a constant size of 3x3
 impl<T> Matrix<T, 3>
 where
     T: Float,
     T: PartialEq,
 {
-    // create a sub matrix of size 2x2, delete the given row and col
+    // create a sub matrix of size 2x2, by deleting the given row and col.
     pub fn sub_matrix(&self, row: usize, col: usize) -> Matrix<T, 2> {
         let mut new_matrix = Matrix::<T, 2>::new();
-        let mut row_index: usize = 0;
+        let mut matrix_row: usize = 0;
         for x in 0..3 {
             if x != row {
-                let mut col_index: usize = 0;
+                let mut matrix_col: usize = 0;
                 for y in 0..3 {
                     if y != col {
-                        new_matrix.data[row_index][col_index] = self.data[x][y];
-                        col_index += 1
+                        new_matrix.data[matrix_row][matrix_col] = self.data[x][y];
+                        matrix_col += 1
                     }
                 }
-                row_index += 1
+                matrix_row += 1
             }
         }
         new_matrix
+    }
+
+    // a minor of an element at row i and column j is the determinant of the sub
+    // matrix at (i,j)
+    pub fn minor(&self, row: usize, col: usize) -> T {
+        self.sub_matrix(row, col).determinant()
+    }
+
+    // return the cofactor at the given row and column
+    // cofactor are minors but are maybe negated based on
+    // (row, col) position
+    pub fn cofactor(&self, row: usize, col: usize) -> T {
+        let cofactor = self.minor(row, col);
+
+        match (row * 3) + col % 2 == 0 {
+            true => cofactor,
+            false => -cofactor,
+        }
+    }
+
+    pub fn determinant(&self) -> T {
+        self.data[0].iter().enumerate().map(|(index, row)| {})
     }
 }
 
@@ -148,15 +170,15 @@ where
 {
     fn from_iter<T: IntoIterator<Item = Vec<A>>>(iter: T) -> Self {
         let mut matrix: Matrix<A, N> = Matrix::new();
-        let mut row_index = 0;
+        let mut matrix_row = 0;
 
         for row in iter {
-            let mut col_index = 0;
+            let mut matrix_col = 0;
             for col in row {
-                matrix.data[row_index][col_index] = col;
-                col_index += 1
+                matrix.data[matrix_row][matrix_col] = col;
+                matrix_col += 1
             }
-            row_index += 1
+            matrix_row += 1
         }
         matrix
     }
@@ -449,5 +471,33 @@ mod tests {
         ]);
 
         assert_eq!(matrix.sub_matrix(2, 1), sub_matrix)
+    }
+
+    #[test]
+    fn minor_3x3() {
+        let matrix = Matrix::<f64, 3>::from(vec![
+            vec![3.0, 5.0, 0.0],
+            vec![2.0, -1.0, -7.0],
+            vec![6.0, -1.0, 5.0],
+        ]);
+
+        let sub_matrix = matrix.sub_matrix(1, 0);
+
+        assert_eq!(matrix.minor(1, 0), 25.0);
+        assert_eq!(matrix.minor(1, 0), sub_matrix.determinant())
+    }
+
+    #[test]
+    fn cofactor_3x3() {
+        let matrix = Matrix::<f64, 3>::from(vec![
+            vec![3.0, 5.0, 0.0],
+            vec![2.0, -1.0, -7.0],
+            vec![6.0, -1.0, 5.0],
+        ]);
+
+        assert_eq!(matrix.cofactor(0, 0), -12.0);
+        assert_eq!(matrix.minor(0, 0), -12.0);
+        assert_eq!(matrix.cofactor(1, 0), -25.0);
+        assert_eq!(matrix.minor(1, 0), 25.0)
     }
 }
