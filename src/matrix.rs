@@ -355,6 +355,25 @@ mod tests {
     }
 
     #[test]
+    fn insert_matrix() {
+        let mut matrix: Matrix<f64, 4> = Matrix::from(vec![
+            vec![1.0, 2.0, 3.0, 4.0],
+            vec![5.0, 6.0, 7.0, 8.0],
+            vec![9.0, 8.0, 7.0, 6.0],
+            vec![5.0, 4.0, 3.0, 2.0],
+        ]);
+
+        match matrix.insert(0, 0, 0.0) {
+            Ok(_) => {
+                assert_eq!(matrix.data[0][0], 0.0)
+            }
+            Err(_) => {
+                assert_eq!(false, true)
+            }
+        }
+    }
+
+    #[test]
     fn compare_matrix_equal() {
         let matrix1: Matrix<f64, 4> = Matrix::from(vec![
             vec![1.0, 2.0, 3.0, 4.0],
