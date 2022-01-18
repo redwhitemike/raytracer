@@ -73,6 +73,7 @@ impl<T> Matrix<T, 4>
 where
     T: Float,
     T: PartialEq,
+    T: AddAssign,
 {
     // create a sub matrix of size 3x3, by deleting the given row and col
     pub fn sub_matrix(&self, row: usize, col: usize) -> Matrix<T, 3> {
@@ -92,6 +93,33 @@ where
         }
         new_matrix
     }
+
+    // a minor of an element at row i and column j is the determinant of the sub
+    // matrix at (i,j)
+    pub fn minor(&self, row: usize, col: usize) -> T {
+        self.sub_matrix(row, col).determinant()
+    }
+
+    // return the cofactor at the given row and column
+    // cofactor are minors but are maybe negated based on
+    // (row, col) position
+    pub fn cofactor(&self, row: usize, col: usize) -> T {
+        let cofactor = self.minor(row, col);
+
+        match (row * 4) + col % 2 == 0 {
+            true => cofactor,
+            false => -cofactor,
+        }
+    }
+
+    // calculate determinant of matrix size 4
+    pub fn determinant(&self) -> T {
+        let mut det = T::zero();
+        for col in 0..4 {
+            det += self.data[0][col] * self.cofactor(0, col)
+        }
+        det
+    }
 }
 
 // functions for Matrix with a constant size of 3x3
@@ -99,6 +127,7 @@ impl<T> Matrix<T, 3>
 where
     T: Float,
     T: PartialEq,
+    T: AddAssign,
 {
     // create a sub matrix of size 2x2, by deleting the given row and col.
     pub fn sub_matrix(&self, row: usize, col: usize) -> Matrix<T, 2> {
@@ -137,8 +166,13 @@ where
         }
     }
 
+    // calculate determinant of matrix size 3
     pub fn determinant(&self) -> T {
-        self.data[0].iter().enumerate().map(|(index, row)| {})
+        let mut det = T::zero();
+        for col in 0..3 {
+            det += self.data[0][col] * self.cofactor(0, col)
+        }
+        det
     }
 }
 
@@ -499,5 +533,28 @@ mod tests {
         assert_eq!(matrix.minor(0, 0), -12.0);
         assert_eq!(matrix.cofactor(1, 0), -25.0);
         assert_eq!(matrix.minor(1, 0), 25.0)
+    }
+
+    #[test]
+    fn determinant_3x3() {
+        let matrix = Matrix::<f64, 3>::from(vec![
+            vec![1.0, 2.0, 6.0],
+            vec![-5.0, 8.0, -4.0],
+            vec![2.0, 6.0, 4.0],
+        ]);
+
+        assert_eq!(matrix.determinant(), -196.0)
+    }
+
+    #[test]
+    fn determinant_4x4() {
+        let matrix = Matrix::<f64, 4>::from(vec![
+            vec![-2.0, -8.0, 3.0, 5.0],
+            vec![-3.0, 1.0, 7.0, 3.0],
+            vec![1.0, 2.0, -9.0, 6.0],
+            vec![-6.0, 7.0, 7.0, -9.0],
+        ]);
+
+        assert_eq!(matrix.determinant(), -4071.0)
     }
 }
