@@ -242,10 +242,9 @@ where
 
     fn mul(self, rhs: Self) -> Self::Output {
         let mut new_matrix: Matrix<T, N> = Matrix::new();
-        let size = self.data.len();
-        for row in 0..size {
-            for col in 0..size {
-                for index in 0..size {
+        for row in 0..N {
+            for col in 0..N {
+                for index in 0..N {
                     new_matrix.data[row][col] += self.data[row][index] * rhs.data[index][col]
                 }
             }
