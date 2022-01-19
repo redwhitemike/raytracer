@@ -8,6 +8,7 @@ use std::fs;
 
 mod canvas;
 mod color;
+mod float_service;
 mod matrix;
 mod projectile;
 mod tuple;
