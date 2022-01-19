@@ -16,7 +16,6 @@ where
 impl<T, const N: usize> Matrix<T, N>
 where
     T: Float,
-    T: PartialEq,
 {
     // create a new matrix with given size
     pub fn new() -> Self {
@@ -40,7 +39,7 @@ where
             Some(row) => match row.get(i2) {
                 None => Err("index out of bounds"),
                 Some(_) => {
-                    self.data[i1][i2] = number;
+                    self[i1][i2] = number;
                     Ok(())
                 }
             },
@@ -62,7 +61,7 @@ where
         let mut new_matrix = Matrix::<T, N>::new();
         for row in 0..N {
             for col in 0..N {
-                new_matrix.data[col][row] = self.data[row][col]
+                new_matrix[col][row] = self[row][col]
             }
         }
         new_matrix
@@ -73,7 +72,6 @@ where
 impl<T> Matrix<T, 4>
 where
     T: Float,
-    T: PartialEq,
     T: AddAssign,
 {
     // create a sub matrix of size 3x3, by deleting the given row and col
@@ -85,7 +83,7 @@ where
                 let mut matrix_col: usize = 0;
                 for y in 0..4 {
                     if y != col {
-                        new_matrix.data[matrix_row][matrix_col] = self.data[x][y];
+                        new_matrix[matrix_row][matrix_col] = self[x][y];
                         matrix_col += 1
                     }
                 }
@@ -107,7 +105,7 @@ where
     pub fn cofactor(&self, row: usize, col: usize) -> T {
         let cofactor = self.minor(row, col);
 
-        match (row * 4) + col % 2 == 0 {
+        match (row + col) % 2 == 0 {
             true => cofactor,
             false => -cofactor,
         }
@@ -117,9 +115,32 @@ where
     pub fn determinant(&self) -> T {
         let mut det = T::zero();
         for col in 0..4 {
-            det += self.data[0][col] * self.cofactor(0, col)
+            det += self[0][col] * self.cofactor(0, col)
         }
         det
+    }
+
+    // check if the determinant is not equal to 0
+    // if that is the case the matrix is invertible
+    pub fn invertible(&self) -> bool {
+        self.determinant() != T::zero()
+    }
+
+    // return the inverse matrix of the current matrix
+    pub fn inverse(&self) -> Result<Matrix<T, 4>, &'static str> {
+        match self.invertible() {
+            true => {
+                let mut new_matrix = Matrix::<T, 4>::new();
+                self.data.iter().enumerate().for_each(|(row, row_vec)| {
+                    row_vec.iter().enumerate().for_each(|(col, col_float)| {
+                        let cofactor = self.cofactor(row, col);
+                        new_matrix[col][row] = cofactor / self.determinant()
+                    })
+                });
+                Ok(new_matrix)
+            }
+            false => Err("index out of bounds"),
+        }
     }
 }
 
@@ -127,7 +148,6 @@ where
 impl<T> Matrix<T, 3>
 where
     T: Float,
-    T: PartialEq,
     T: AddAssign,
 {
     // create a sub matrix of size 2x2, by deleting the given row and col.
@@ -139,7 +159,7 @@ where
                 let mut matrix_col: usize = 0;
                 for y in 0..3 {
                     if y != col {
-                        new_matrix.data[matrix_row][matrix_col] = self.data[x][y];
+                        new_matrix[matrix_row][matrix_col] = self[x][y];
                         matrix_col += 1
                     }
                 }
@@ -161,7 +181,7 @@ where
     pub fn cofactor(&self, row: usize, col: usize) -> T {
         let cofactor = self.minor(row, col);
 
-        match (row * 3) + col % 2 == 0 {
+        match (row + col) % 2 == 0 {
             true => cofactor,
             false => -cofactor,
         }
@@ -171,7 +191,7 @@ where
     pub fn determinant(&self) -> T {
         let mut det = T::zero();
         for col in 0..3 {
-            det += self.data[0][col] * self.cofactor(0, col)
+            det += self[0][col] * self.cofactor(0, col)
         }
         det
     }
@@ -217,12 +237,36 @@ where
         for row in iter {
             let mut matrix_col = 0;
             for col in row {
-                matrix.data[matrix_row][matrix_col] = col;
+                matrix[matrix_row][matrix_col] = col;
                 matrix_col += 1
             }
             matrix_row += 1
         }
         matrix
+    }
+}
+
+// implement trait Index for Matrix
+// makes indexing without matrix.data possible
+impl<T, const N: usize> Index<usize> for Matrix<T, N>
+where
+    T: Float,
+{
+    type Output = [T; N];
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.data[index]
+    }
+}
+
+// implement trait IndexMut for Matrix
+// makes indexing without matrix.data possible
+impl<T, const N: usize> IndexMut<usize> for Matrix<T, N>
+where
+    T: Float,
+{
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.data[index]
     }
 }
 
@@ -253,7 +297,7 @@ where
         for row in 0..N {
             for col in 0..N {
                 for index in 0..N {
-                    new_matrix.data[row][col] += self.data[row][index] * rhs.data[index][col]
+                    new_matrix[row][col] += self[row][index] * rhs[index][col]
                 }
             }
         }
@@ -274,7 +318,7 @@ where
         for i in 0..4 {
             let mut right_number = T::zero();
             for y in 0..4 {
-                right_number += self.data[i][y] * rhs[y]
+                right_number += self[i][y] * rhs[y]
             }
             tuple[i] = right_number
         }
@@ -295,7 +339,7 @@ where
 
                 for x in 0..N {
                     for y in 0..N {
-                        new_matrix.data[x][y] = data[x][y]
+                        new_matrix[x][y] = data[x][y]
                     }
                 }
                 new_matrix
@@ -582,5 +626,68 @@ mod tests {
         ]);
 
         assert_eq!(matrix.determinant(), -4071.0)
+    }
+
+    #[test]
+    fn is_invertible() {
+        let matrix = Matrix::<f64, 4>::from(vec![
+            vec![6.0, 4.0, 4.0, 4.0],
+            vec![5.0, 5.0, 7.0, 6.0],
+            vec![4.0, -9.0, 3.0, -7.0],
+            vec![9.0, 1.0, 7.0, -6.0],
+        ]);
+
+        assert_eq!(matrix.determinant(), -2120.0);
+        assert_eq!(matrix.invertible(), true)
+    }
+
+    #[test]
+    fn is_not_invertible() {
+        let matrix = Matrix::<f64, 4>::from(vec![
+            vec![6.0, 4.0, 4.0, 4.0],
+            vec![5.0, 5.0, 7.0, 6.0],
+            vec![4.0, -9.0, 3.0, -7.0],
+            vec![0.0, 0.0, 0.0, 0.0],
+        ]);
+
+        assert_eq!(matrix.determinant(), 0.0);
+        assert_eq!(matrix.invertible(), false)
+    }
+
+    #[test]
+    fn inverse_1() {
+        let matrix = Matrix::<f64, 4>::from(vec![
+            vec![-5.0, 2.0, 6.0, -8.0],
+            vec![1.0, -5.0, 1.0, 8.0],
+            vec![7.0, 7.0, -6.0, -7.0],
+            vec![1.0, -3.0, 7.0, 4.0],
+        ]);
+
+        let mut inverse_matrix = Matrix::<f64, 4>::new();
+        match matrix.inverse() {
+            Ok(e) => inverse_matrix = e,
+            Err(_) => {
+                assert_eq!(true, false)
+            }
+        };
+
+        let correct_inverse_matrix = Matrix::<f64, 4>::from(vec![
+            vec![0.21805, 0.45113, 0.24060, -0.04511],
+            vec![-0.80827, -1.45677, -0.44361, 0.52068],
+            vec![-0.07895, -0.22368, -0.05263, 0.19737],
+            vec![-0.52256, -0.81391, -0.30075, 0.30639],
+        ]);
+
+        assert_eq!(matrix.determinant(), 532.0);
+        assert_eq!(matrix.cofactor(2, 3), -160.0);
+        assert_eq!(inverse_matrix[3][2], -160.0 / 532.0);
+        assert_eq!(matrix.cofactor(3, 2), 105.0);
+        assert_eq!(inverse_matrix[2][3], 105.0 / 532.0);
+        assert_eq!(inverse_matrix, correct_inverse_matrix);
+    }
+
+    #[test]
+    fn inverse_2() {
+        let matrix = Matrix::<f64, 4>::from(vec![vec![]]);
     }
 }
