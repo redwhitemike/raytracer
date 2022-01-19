@@ -1,6 +1,7 @@
-use crate::tuple::Tuple;
+use crate::float_service::compare_floats;
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, Mul, Sub};
+
 /**
     Author: Maciek Mika
     This file contains the color struct and methods. It is used to represent colors on the canvas.
@@ -29,9 +30,9 @@ impl Add<Color> for Color {
 
 impl PartialEq for Color {
     fn eq(&self, other: &Self) -> bool {
-        Tuple::compare_floats(self.red, other.red)
-            && Tuple::compare_floats(self.green, other.green)
-            && Tuple::compare_floats(self.blue, other.blue)
+        compare_floats(self.red, other.red)
+            && compare_floats(self.green, other.green)
+            && compare_floats(self.blue, other.blue)
     }
 }
 

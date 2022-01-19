@@ -1,6 +1,8 @@
+use crate::float_service::compare_floats;
 use num::Float;
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, Div, Index, IndexMut, Mul, Neg, Sub};
+
 /**
    Author: Maciek Mika
    This is the tuple file. It contains the tuple struct information and methods.
@@ -16,6 +18,65 @@ where
     pub y: T,
     pub z: T,
     pub w: T,
+}
+
+impl<T> Tuple<T>
+where
+    T: Float,
+{
+    // create new tuple
+    pub fn new(x: T, y: T, z: T, w: T) -> Self {
+        Self { x, y, z, w }
+    }
+
+    // creates a new tuple that is a point
+    pub fn new_point(x: T, y: T, z: T) -> Self {
+        Self {
+            x,
+            y,
+            z,
+            w: T::one(),
+        }
+    }
+
+    // creates a new tuple that is a vector
+    pub fn new_vector(x: T, y: T, z: T) -> Self {
+        Self {
+            x,
+            y,
+            z,
+            w: T::zero(),
+        }
+    }
+
+    // return the magnitude of the vector
+    pub fn magnitude(&self) -> T {
+        T::sqrt(self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2))
+    }
+
+    // convert vector into unit vector
+    pub fn normalize(&self) -> Tuple<T> {
+        Tuple {
+            x: self.x / self.magnitude(),
+            y: self.y / self.magnitude(),
+            z: self.z / self.magnitude(),
+            w: self.w / self.magnitude(),
+        }
+    }
+
+    // create dot product of 2 vectors
+    pub fn dot_product(t1: &Tuple<T>, t2: &Tuple<T>) -> T {
+        t1.x * t2.x + t1.y * t2.y + t1.z * t2.z + t1.w * t1.w
+    }
+
+    // create cross product of 2 vectors
+    pub fn cross_product(t1: &Tuple<T>, t2: &Tuple<T>) -> Tuple<T> {
+        Tuple::new_vector(
+            t1.y * t2.z - t1.z * t2.y,
+            t1.z * t2.x - t1.x * t2.z,
+            t1.x * t2.y - t1.y * t2.x,
+        )
+    }
 }
 
 impl<T> Display for Tuple<T>
@@ -117,9 +178,9 @@ where
     T: Float,
 {
     fn eq(&self, other: &Self) -> bool {
-        Tuple::compare_floats(self.x, other.x)
-            && Tuple::compare_floats(self.y, other.y)
-            && Tuple::compare_floats(self.z, other.z)
+        compare_floats(self.x, other.x)
+            && compare_floats(self.y, other.y)
+            && compare_floats(self.z, other.z)
     }
 }
 
@@ -157,80 +218,9 @@ where
     }
 }
 
-impl<T> Tuple<T>
-where
-    T: Float,
-{
-    // create new tuple
-    pub fn new(x: T, y: T, z: T, w: T) -> Self {
-        Self { x, y, z, w }
-    }
-
-    // creates a new tuple that is a point
-    pub fn new_point(x: T, y: T, z: T) -> Self {
-        Self {
-            x,
-            y,
-            z,
-            w: T::one(),
-        }
-    }
-
-    // creates a new tuple that is a vector
-    pub fn new_vector(x: T, y: T, z: T) -> Self {
-        Self {
-            x,
-            y,
-            z,
-            w: T::zero(),
-        }
-    }
-
-    // compare floating numbers
-    pub fn compare_floats(x: T, y: T) -> bool
-    where
-        T: Float,
-    {
-        match T::from(EPSILON) {
-            None => false,
-            Some(eps) => T::abs(x - y) < eps,
-        }
-    }
-
-    // return the magnitude of the vector
-    pub fn magnitude(&self) -> T {
-        T::sqrt(self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2))
-    }
-
-    // convert vector into unit vector
-    pub fn normalize(&self) -> Tuple<T> {
-        Tuple {
-            x: self.x / self.magnitude(),
-            y: self.y / self.magnitude(),
-            z: self.z / self.magnitude(),
-            w: self.w / self.magnitude(),
-        }
-    }
-
-    // create dot product of 2 vectors
-    pub fn dot_product(t1: &Tuple<T>, t2: &Tuple<T>) -> T {
-        t1.x * t2.x + t1.y * t2.y + t1.z * t2.z + t1.w * t1.w
-    }
-
-    // create cross product of 2 vectors
-    pub fn cross_product(t1: &Tuple<T>, t2: &Tuple<T>) -> Tuple<T> {
-        Tuple::new_vector(
-            t1.y * t2.z - t1.z * t2.y,
-            t1.z * t2.x - t1.x * t2.z,
-            t1.x * t2.y - t1.y * t2.x,
-        )
-    }
-}
-
-const EPSILON: f64 = 0.00001;
-
 #[cfg(test)]
 mod tests {
+    use crate::float_service::compare_floats;
     use crate::tuple::Tuple;
 
     #[test]
@@ -374,7 +364,7 @@ mod tests {
                 3.0 / f64::sqrt(14.0)
             )
         );
-        assert!(Tuple::compare_floats(vector3.normalize().magnitude(), 1.0));
+        assert!(compare_floats(vector3.normalize().magnitude(), 1.0));
     }
 
     #[test]

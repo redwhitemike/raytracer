@@ -1,7 +1,8 @@
+use crate::float_service::compare_floats;
 use crate::Tuple;
 use num::Float;
 use std::array::IntoIter;
-use std::ops::{AddAssign, Mul};
+use std::ops::{AddAssign, Index, IndexMut, Mul};
 
 #[derive(Debug, Clone)]
 struct Matrix<T, const N: usize>
@@ -179,21 +180,28 @@ where
 impl<T> Matrix<T, 2>
 where
     T: Float,
-    T: PartialEq,
 {
     // return the determinant of a matrix that is 2x2
     pub fn determinant(&self) -> T {
-        self.data[0][0] * self.data[1][1] - self.data[0][1] * self.data[1][0]
+        self[0][0] * self[1][1] - self[0][1] * self[1][0]
     }
 }
 // implement '==' for Matrix<T>. Make it possible to check if
-// 2 matrixes are the same
+// 2 matrices are the same
 impl<T, const N: usize> PartialEq for Matrix<T, N>
 where
     T: Float,
 {
     fn eq(&self, other: &Self) -> bool {
-        self.data == other.data
+        for row in 0..N {
+            for col in 0..N {
+                match compare_floats(self[row][col], other[row][col]) {
+                    true => {} // do nothing
+                    false => return false,
+                }
+            }
+        }
+        true
     }
 }
 
