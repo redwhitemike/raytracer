@@ -9,6 +9,7 @@ struct Matrix<T, const N: usize>
 where
     T: Float,
     T: Clone,
+    T: Copy,
 {
     data: [[T; N]; N],
 }
@@ -132,7 +133,7 @@ where
             true => {
                 let mut new_matrix = Matrix::<T, 4>::new();
                 self.data.iter().enumerate().for_each(|(row, row_vec)| {
-                    row_vec.iter().enumerate().for_each(|(col, col_float)| {
+                    row_vec.iter().enumerate().for_each(|(col, _)| {
                         let cofactor = self.cofactor(row, col);
                         new_matrix[col][row] = cofactor / self.determinant()
                     })
@@ -688,6 +689,86 @@ mod tests {
 
     #[test]
     fn inverse_2() {
-        let matrix = Matrix::<f64, 4>::from(vec![vec![]]);
+        let matrix = Matrix::<f64, 4>::from(vec![
+            vec![8.0, -5.0, 9.0, 2.0],
+            vec![7.0, 5.0, 6.0, 1.0],
+            vec![-6.0, 0.0, 9.0, 6.0],
+            vec![-3.0, 0.0, -9.0, -4.0],
+        ]);
+
+        let mut inverse_matrix = Matrix::<f64, 4>::new();
+
+        match matrix.inverse() {
+            Ok(e) => inverse_matrix = e,
+            Err(_) => {
+                assert_eq!(true, false)
+            }
+        }
+
+        let correct_inverse_matrix = Matrix::<f64, 4>::from(vec![
+            vec![-0.15385, -0.15385, -0.28205, -0.53846],
+            vec![-0.07692, 0.12308, 0.02564, 0.03077],
+            vec![0.35897, 0.35897, 0.43590, 0.92308],
+            vec![-0.69231, -0.69231, -0.76923, -1.92308],
+        ]);
+
+        assert_eq!(inverse_matrix, correct_inverse_matrix)
+    }
+
+    #[test]
+    fn inverse_3() {
+        let matrix = Matrix::<f64, 4>::from(vec![
+            vec![9.0, 3.0, 0.0, 9.0],
+            vec![-5.0, -2.0, -6.0, -3.0],
+            vec![-4.0, 9.0, 6.0, 4.0],
+            vec![-7.0, 6.0, 6.0, 2.0],
+        ]);
+
+        let mut inverse_matrix = Matrix::<f64, 4>::new();
+        match matrix.inverse() {
+            Ok(e) => inverse_matrix = e,
+            Err(_) => {
+                assert_eq!(true, false)
+            }
+        }
+
+        let correct_inverse_matrix = Matrix::<f64, 4>::from(vec![
+            vec![-0.04074, -0.07778, 0.14444, -0.22222],
+            vec![-0.07778, 0.03333, 0.36667, -0.33333],
+            vec![-0.029011, -0.14630, -0.10926, 0.12963],
+            vec![0.17778, 0.06667, -0.26667, 0.33333],
+        ]);
+
+        assert_eq!(inverse_matrix, correct_inverse_matrix)
+    }
+
+    #[test]
+    fn multiply_product_by_inverse() {
+        let matrix_a = Matrix::<f64, 4>::from(vec![
+            vec![3.0, -9.0, 7.0, 3.0],
+            vec![3.0, -8.0, 2.0, -9.0],
+            vec![-4.0, 9.0, 6.0, 4.0],
+            vec![-7.0, 6.0, 6.0, 2.0],
+        ]);
+
+        let matrix_b = Matrix::<f64, 4>::from(vec![
+            vec![8.0, 2.0, 2.0, 2.0],
+            vec![3.0, -1.0, 7.0, 0.0],
+            vec![7.0, 0.0, 5.0, 4.0],
+            vec![6.0, -2.0, 0.0, 5.0],
+        ]);
+
+        let matrix_c = matrix_a * matrix_b;
+
+        let mut inverse_matrix_b = Matrix::<f64, 4>::new();
+
+        match matrix_b.inverse() {
+            Ok(e) => inverse_matrix_b = e,
+            Err(_) => {
+                assert_eq!(true, false)
+            }
+        }
+
+        assert_eq!(matrix_c * inverse_matrix_b, matrix_a)
     }
 }
