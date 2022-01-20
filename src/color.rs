@@ -1,6 +1,7 @@
-use crate::tuple::Tuple;
+use crate::float_service::compare_floats;
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, Mul, Sub};
+
 /**
     Author: Maciek Mika
     This file contains the color struct and methods. It is used to represent colors on the canvas.
@@ -9,9 +10,9 @@ use std::ops::{Add, Mul, Sub};
 
 #[derive(Debug, Clone)]
 pub struct Color {
-    red: f32,
-    green: f32,
-    blue: f32,
+    red: f64,
+    green: f64,
+    blue: f64,
 }
 
 // implement '+' operator overload for Colors
@@ -29,9 +30,9 @@ impl Add<Color> for Color {
 
 impl PartialEq for Color {
     fn eq(&self, other: &Self) -> bool {
-        Tuple::compare_floats(self.red, other.red)
-            && Tuple::compare_floats(self.green, other.green)
-            && Tuple::compare_floats(self.blue, other.blue)
+        compare_floats(self.red, other.red)
+            && compare_floats(self.green, other.green)
+            && compare_floats(self.blue, other.blue)
     }
 }
 
@@ -84,11 +85,11 @@ impl Mul<Color> for Color {
     }
 }
 
-// implement '*' operator overload for Colors with a f32
-impl Mul<f32> for Color {
+// implement '*' operator overload for Colors with a f64
+impl Mul<f64> for Color {
     type Output = Color;
 
-    fn mul(self, rhs: f32) -> Self::Output {
+    fn mul(self, rhs: f64) -> Self::Output {
         Color::new(self.red * rhs, self.green * rhs, self.blue * rhs)
     }
 }
@@ -96,7 +97,7 @@ impl Mul<f32> for Color {
 // Color struct functions
 impl Color {
     // create new color
-    pub fn new(red: f32, green: f32, blue: f32) -> Self {
+    pub fn new(red: f64, green: f64, blue: f64) -> Self {
         Self { red, green, blue }
     }
 
