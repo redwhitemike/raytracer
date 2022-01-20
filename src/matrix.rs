@@ -9,7 +9,6 @@ struct Matrix<T, const N: usize>
 where
     T: Float,
     T: Clone,
-    T: Copy,
 {
     data: [[T; N]; N],
 }
@@ -758,7 +757,7 @@ mod tests {
             vec![6.0, -2.0, 0.0, 5.0],
         ]);
 
-        let matrix_c = matrix_a * matrix_b;
+        let matrix_c = matrix_a.clone() * matrix_b.clone();
 
         let mut inverse_matrix_b = Matrix::<f64, 4>::new();
 
