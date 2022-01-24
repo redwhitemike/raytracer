@@ -161,6 +161,17 @@ where
 
         matrix
     }
+
+    // create a rotation matrix and return it
+    pub fn rotate_x(x: T) -> Self {
+        let mut matrix = Self::identity_matrix();
+        matrix[1][1] = x.cos();
+        matrix[1][2] = -x.sin();
+        matrix[2][1] = x.sin();
+        matrix[2][2] = x.cos();
+
+        matrix
+    }
 }
 
 // functions for Matrix with a constant size of 3x3
@@ -378,6 +389,7 @@ where
 mod tests {
     use crate::matrix::Matrix;
     use crate::Tuple;
+    use std::f64::consts::PI;
 
     #[test]
     fn create_matrix_4x4() {
@@ -864,5 +876,19 @@ mod tests {
         let correct_point = Tuple::<f64>::new_point(-2.0, 3.0, 4.0);
 
         assert_eq!(transform * point, correct_point)
+    }
+
+    #[test]
+    fn rotate_point_x_axis() {
+        let point = Tuple::<f64>::new_point(0.0, 1.0, 0.0);
+        let correct_half_quarter =
+            Tuple::<f64>::new_point(0.0, 2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0);
+        let correct_full_quarter = Tuple::<f64>::new_point(0.0, 0.0, 1.0);
+
+        let half_quarter = Matrix::<f64, 4>::rotate_x(PI / 4.0);
+        let full_quarter = Matrix::<f64, 4>::rotate_x(PI / 2.0);
+
+        assert_eq!(half_quarter * point.clone(), correct_half_quarter);
+        assert_eq!(full_quarter * point, correct_full_quarter)
     }
 }
