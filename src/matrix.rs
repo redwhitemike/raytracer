@@ -46,16 +46,6 @@ where
         }
     }
 
-    // return a identity matrix
-    pub fn identity_matrix() -> Matrix<T, N> {
-        Matrix::from(vec![
-            vec![T::one(), T::zero(), T::zero(), T::zero()],
-            vec![T::zero(), T::one(), T::zero(), T::zero()],
-            vec![T::zero(), T::zero(), T::one(), T::zero()],
-            vec![T::zero(), T::zero(), T::zero(), T::one()],
-        ])
-    }
-
     // return a transposed version of the matrix
     pub fn transpose(&self) -> Matrix<T, N> {
         let mut new_matrix = Matrix::<T, N>::new();
@@ -74,6 +64,15 @@ where
     T: Float,
     T: AddAssign,
 {
+    // return a identity matrix
+    pub fn identity_matrix() -> Self {
+        Matrix::from(vec![
+            vec![T::one(), T::zero(), T::zero(), T::zero()],
+            vec![T::zero(), T::one(), T::zero(), T::zero()],
+            vec![T::zero(), T::zero(), T::one(), T::zero()],
+            vec![T::zero(), T::zero(), T::zero(), T::one()],
+        ])
+    }
     // create a sub matrix of size 3x3, by deleting the given row and col
     pub fn sub_matrix(&self, row: usize, col: usize) -> Matrix<T, 3> {
         let mut new_matrix = Matrix::<T, 3>::new();
@@ -127,7 +126,7 @@ where
     }
 
     // return the inverse matrix of the current matrix
-    pub fn inverse(&self) -> Result<Matrix<T, 4>, &'static str> {
+    pub fn inverse(&self) -> Result<Self, &'static str> {
         match self.invertible() {
             true => {
                 let mut new_matrix = Matrix::<T, 4>::new();
@@ -144,7 +143,7 @@ where
     }
 
     // create a translation matrix with the given x, y, z
-    pub fn translation(x: T, y: T, z: T) -> Matrix<T, 4> {
+    pub fn translation(x: T, y: T, z: T) -> Self {
         let mut matrix = Matrix::<T, 4>::identity_matrix();
         matrix[0][3] = x;
         matrix[1][3] = y;
@@ -154,7 +153,7 @@ where
     }
 
     // create a scaled matrix and return it
-    pub fn scaling(x: T, y: T, z: T) -> Matrix<T, 4> {
+    pub fn scaling(x: T, y: T, z: T) -> Self {
         let mut matrix = Matrix::<T, 4>::identity_matrix();
         matrix[0][0] = x;
         matrix[1][1] = y;
