@@ -142,6 +142,26 @@ where
             false => Err("index out of bounds"),
         }
     }
+
+    // create a translation matrix with the given x, y, z
+    pub fn translation(x: T, y: T, z: T) -> Matrix<T, 4> {
+        let mut matrix = Matrix::<T, 4>::identity_matrix();
+        matrix[0][3] = x;
+        matrix[1][3] = y;
+        matrix[2][3] = z;
+
+        matrix
+    }
+
+    // create a scaled matrix and return it
+    pub fn scaling(x: T, y: T, z: T) -> Matrix<T, 4> {
+        let mut matrix = Matrix::<T, 4>::identity_matrix();
+        matrix[0][0] = x;
+        matrix[1][1] = y;
+        matrix[2][2] = z;
+
+        matrix
+    }
 }
 
 // functions for Matrix with a constant size of 3x3
@@ -769,5 +789,72 @@ mod tests {
         }
 
         assert_eq!(matrix_c * inverse_matrix_b, matrix_a)
+    }
+
+    #[test]
+    fn multiply_by_translation_matrix() {
+        let transform = Matrix::<f64, 4>::translation(5.0, -3.0, 2.0);
+        let point = Tuple::<f64>::new_point(-3.0, 4.0, 5.0);
+        let correct_point = Tuple::<f64>::new_point(2.0, 1.0, 7.0);
+
+        assert_eq!(transform * point, correct_point)
+    }
+
+    #[test]
+    fn multiply_by_inverse_translation_matrix() {
+        let transform = Matrix::<f64, 4>::translation(5.0, -3.0, 2.0);
+        let mut inverse = Matrix::<f64, 4>::new();
+        let point = Tuple::<f64>::new_point(-3.0, 4.0, 5.0);
+        let correct_point = Tuple::<f64>::new_point(-8.0, 7.0, 3.0);
+        match transform.inverse() {
+            Ok(e) => inverse = e,
+            Err(_) => {
+                assert_eq!(true, false)
+            }
+        }
+
+        assert_eq!(inverse * point, correct_point)
+    }
+
+    #[test]
+    fn translation_does_not_effect_vectors() {
+        let transform = Matrix::<f64, 4>::translation(5.0, -3.0, 2.0);
+        let vector = Tuple::<f64>::new_vector(-3.0, 4.0, 5.0);
+        let correct_vector = vector.clone();
+
+        assert_eq!(transform * vector, correct_vector)
+    }
+
+    #[test]
+    fn scaling_matrix_mul_point() {
+        let transform = Matrix::<f64, 4>::scaling(2.0, 3.0, 4.0);
+        let point = Tuple::<f64>::new_point(-4.0, 6.0, 8.0);
+        let correct_point = Tuple::<f64>::new_point(-8.0, 18.0, 32.0);
+
+        assert_eq!(transform * point, correct_point)
+    }
+
+    #[test]
+    fn scaling_matrix_mul_vector() {
+        let transform = Matrix::<f64, 4>::scaling(2.0, 3.0, 4.0);
+        let vector = Tuple::<f64>::new_vector(-4.0, 6.0, 8.0);
+        let correct_vector = Tuple::<f64>::new_vector(-8.0, 18.0, 32.0);
+
+        assert_eq!(transform * vector, correct_vector)
+    }
+
+    #[test]
+    fn scaling_matrix_inverse() {
+        let transform = Matrix::<f64, 4>::scaling(2.0, 3.0, 4.0);
+        let vector = Tuple::<f64>::new_vector(-4.0, 6.0, 8.0);
+        let correct_vector = Tuple::<f64>::new_vector(-2.0, 2.0, 2.0);
+        let mut inverse = Matrix::<f64, 4>::new();
+        match transform.inverse() {
+            Ok(e) => inverse = e,
+            Err(_) => {
+                assert_eq!(true, false)
+            }
+        }
+        assert_eq!(inverse * vector, correct_vector)
     }
 }
