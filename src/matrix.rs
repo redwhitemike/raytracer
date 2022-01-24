@@ -66,7 +66,7 @@ where
 {
     // return a identity matrix
     pub fn identity_matrix() -> Self {
-        Matrix::from(vec![
+        Self::from(vec![
             vec![T::one(), T::zero(), T::zero(), T::zero()],
             vec![T::zero(), T::one(), T::zero(), T::zero()],
             vec![T::zero(), T::zero(), T::one(), T::zero()],
@@ -129,7 +129,7 @@ where
     pub fn inverse(&self) -> Result<Self, &'static str> {
         match self.invertible() {
             true => {
-                let mut new_matrix = Matrix::<T, 4>::new();
+                let mut new_matrix = Self::new();
                 self.data.iter().enumerate().for_each(|(row, row_vec)| {
                     row_vec.iter().enumerate().for_each(|(col, _)| {
                         let cofactor = self.cofactor(row, col);
@@ -144,7 +144,7 @@ where
 
     // create a translation matrix with the given x, y, z
     pub fn translation(x: T, y: T, z: T) -> Self {
-        let mut matrix = Matrix::<T, 4>::identity_matrix();
+        let mut matrix = Self::identity_matrix();
         matrix[0][3] = x;
         matrix[1][3] = y;
         matrix[2][3] = z;
@@ -154,7 +154,7 @@ where
 
     // create a scaled matrix and return it
     pub fn scaling(x: T, y: T, z: T) -> Self {
-        let mut matrix = Matrix::<T, 4>::identity_matrix();
+        let mut matrix = Self::identity_matrix();
         matrix[0][0] = x;
         matrix[1][1] = y;
         matrix[2][2] = z;
