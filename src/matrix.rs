@@ -857,4 +857,13 @@ mod tests {
         }
         assert_eq!(inverse * vector, correct_vector)
     }
+
+    #[test]
+    fn reflection_by_scaling_negative_value() {
+        let transform = Matrix::<f64, 4>::scaling(-1.0, 1.0, 1.0);
+        let point = Tuple::<f64>::new_point(2.0, 3.0, 4.0);
+        let correct_point = Tuple::<f64>::new_point(-2.0, 3.0, 4.0);
+
+        assert_eq!(transform * point, correct_point)
+    }
 }
