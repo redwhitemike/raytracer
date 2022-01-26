@@ -162,13 +162,50 @@ where
         matrix
     }
 
-    // create a rotation matrix and return it
-    pub fn rotate_x(x: T) -> Self {
+    // create a rotation matrix over x axis and return it
+    pub fn rotate_x(radians: T) -> Self {
         let mut matrix = Self::identity_matrix();
-        matrix[1][1] = x.cos();
-        matrix[1][2] = -x.sin();
-        matrix[2][1] = x.sin();
-        matrix[2][2] = x.cos();
+        matrix[1][1] = radians.cos();
+        matrix[1][2] = -radians.sin();
+        matrix[2][1] = radians.sin();
+        matrix[2][2] = radians.cos();
+
+        matrix
+    }
+
+    // create a rotation matrix over y axis and return it
+    pub fn rotate_y(radians: T) -> Self {
+        let mut matrix = Self::identity_matrix();
+        matrix[0][0] = radians.cos();
+        matrix[0][2] = radians.sin();
+        matrix[2][0] = -radians.sin();
+        matrix[2][2] = radians.cos();
+
+        matrix
+    }
+
+    // create a rotation matrix over z axis and return it
+    pub fn rotate_z(radians: T) -> Self {
+        let mut matrix = Self::identity_matrix();
+        matrix[0][0] = radians.cos();
+        matrix[0][1] = -radians.sin();
+        matrix[1][0] = radians.sin();
+        matrix[1][1] = radians.cos();
+
+        matrix
+    }
+
+    // create a sheered matrix and return it
+    // it does this by adding a x,y,z compared to another coordinate
+    // at certain places in the matrix
+    pub fn sheering(xy: T, xz: T, yx: T, yz: T, zx: T, zy: T) -> Self {
+        let mut matrix = Self::identity_matrix();
+        matrix[0][1] = xy;
+        matrix[0][2] = xz;
+        matrix[1][0] = yx;
+        matrix[1][2] = yz;
+        matrix[2][0] = zx;
+        matrix[2][1] = zy;
 
         matrix
     }
@@ -890,5 +927,131 @@ mod tests {
 
         assert_eq!(half_quarter * point.clone(), correct_half_quarter);
         assert_eq!(full_quarter * point, correct_full_quarter)
+    }
+
+    #[test]
+    fn rotate_point_x_axis_inverse() {
+        let point = Tuple::<f64>::new_point(0.0, 0.0, 1.0);
+        let correct_half_quarter =
+            Tuple::<f64>::new_point(0.0, 2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0);
+
+        let mut half_quarter = Matrix::<f64, 4>::new();
+        match Matrix::<f64, 4>::rotate_x(PI / 4.0).inverse() {
+            Ok(e) => half_quarter = e,
+            Err(_) => {
+                assert_eq!(true, false)
+            }
+        }
+        assert_eq!(half_quarter * point.clone(), correct_half_quarter);
+    }
+
+    #[test]
+    fn rotate_point_y_axis() {
+        let point = Tuple::<f64>::new_point(0.0, 0.0, 1.0);
+        let correct_half_quarter =
+            Tuple::<f64>::new_point(2.0_f64.sqrt() / 2.0, 0.0, 2.0_f64.sqrt() / 2.0);
+        let correct_full_quarter = Tuple::<f64>::new_point(1.0, 0.0, 0.0);
+
+        let half_quarter = Matrix::<f64, 4>::rotate_y(PI / 4.0);
+        let full_quarter = Matrix::<f64, 4>::rotate_y(PI / 2.0);
+
+        assert_eq!(half_quarter * point.clone(), correct_half_quarter);
+        assert_eq!(full_quarter * point, correct_full_quarter)
+    }
+
+    #[test]
+    fn rotate_point_z_axis() {
+        let point = Tuple::<f64>::new_point(0.0, 1.0, 0.0);
+        let correct_half_quarter =
+            Tuple::<f64>::new_point(-2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0, 0.0);
+        let correct_full_quarter = Tuple::<f64>::new_point(-1.0, 0.0, 0.0);
+
+        let half_quarter = Matrix::<f64, 4>::rotate_z(PI / 4.0);
+        let full_quarter = Matrix::<f64, 4>::rotate_z(PI / 2.0);
+
+        assert_eq!(half_quarter * point.clone(), correct_half_quarter);
+        assert_eq!(full_quarter * point, correct_full_quarter)
+    }
+
+    #[test]
+    fn matrix_sheering_x_y() {
+        let transform = Matrix::<f64, 4>::sheering(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        let point = Tuple::<f64>::new_point(2.0, 3.0, 4.0);
+        let correct_point = Tuple::<f64>::new_point(5.0, 3.0, 4.0);
+
+        assert_eq!(transform * point, correct_point)
+    }
+
+    #[test]
+    fn matrix_sheering_x_z() {
+        let transform = Matrix::<f64, 4>::sheering(0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
+        let point = Tuple::<f64>::new_point(2.0, 3.0, 4.0);
+        let correct_point = Tuple::<f64>::new_point(6.0, 3.0, 4.0);
+
+        assert_eq!(transform * point, correct_point)
+    }
+
+    #[test]
+    fn matrix_sheering_y_x() {
+        let transform = Matrix::<f64, 4>::sheering(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
+        let point = Tuple::<f64>::new_point(2.0, 3.0, 4.0);
+        let correct_point = Tuple::<f64>::new_point(2.0, 5.0, 4.0);
+
+        assert_eq!(transform * point, correct_point)
+    }
+
+    #[test]
+    fn matrix_sheering_y_z() {
+        let transform = Matrix::<f64, 4>::sheering(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+        let point = Tuple::<f64>::new_point(2.0, 3.0, 4.0);
+        let correct_point = Tuple::<f64>::new_point(2.0, 7.0, 4.0);
+
+        assert_eq!(transform * point, correct_point)
+    }
+
+    #[test]
+    fn matrix_sheering_z_x() {
+        let transform = Matrix::<f64, 4>::sheering(0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        let point = Tuple::<f64>::new_point(2.0, 3.0, 4.0);
+        let correct_point = Tuple::<f64>::new_point(2.0, 3.0, 6.0);
+
+        assert_eq!(transform * point, correct_point)
+    }
+
+    #[test]
+    fn matrix_sheering_z_y() {
+        let transform = Matrix::<f64, 4>::sheering(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+        let point = Tuple::<f64>::new_point(2.0, 3.0, 4.0);
+        let correct_point = Tuple::<f64>::new_point(2.0, 3.0, 7.0);
+
+        assert_eq!(transform * point, correct_point)
+    }
+
+    #[test]
+    fn individual_transformations() {
+        let point_1 = Tuple::<f64>::new_point(1.0, 0.0, 1.0);
+        let point_2 = Tuple::<f64>::new_point(1.0, -1.0, 0.0);
+        let point_3 = Tuple::<f64>::new_point(5.0, -5.0, 0.0);
+        let point_4 = Tuple::<f64>::new_point(15.0, 0.0, 7.0);
+
+        let transform_a = Matrix::<f64, 4>::rotate_x(PI / 2.0_f64);
+        let transform_b = Matrix::<f64, 4>::scaling(5.0, 5.0, 5.0);
+        let transform_c = Matrix::<f64, 4>::translation(10.0, 5.0, 7.0);
+
+        assert_eq!(transform_a * point_1, point_2);
+        assert_eq!(transform_b * point_2, point_3);
+        assert_eq!(transform_c * point_3, point_4);
+    }
+
+    #[test]
+    fn chained_transformations() {
+        let point_1 = Tuple::<f64>::new_point(1.0, 0.0, 1.0);
+        let point_2 = Tuple::<f64>::new_point(15.0, 0.0, 7.0);
+
+        let transform_a = Matrix::<f64, 4>::rotate_x(PI / 2.0_f64);
+        let transform_b = Matrix::<f64, 4>::scaling(5.0, 5.0, 5.0);
+        let transform_c = Matrix::<f64, 4>::translation(10.0, 5.0, 7.0);
+
+        assert_eq!(transform_c * transform_b * transform_a * point_1, point_2)
     }
 }
