@@ -40,5 +40,19 @@ mod tests {
         assert_eq!(ray.direction, direction)
     }
     #[test]
-    fn position() {}
+    fn position() {
+        let ray = Ray::new(
+            Tuple::<f64>::new_point(2.0, 3.0, 4.0),
+            Tuple::<f64>::new_vector(1.0, 0.0, 0.0),
+        );
+        let point_1 = Tuple::<f64>::new_point(2.0, 3.0, 4.0);
+        let point_2 = Tuple::<f64>::new_point(3.0, 3.0, 4.0);
+        let point_3 = Tuple::<f64>::new_point(1.0, 3.0, 4.0);
+        let point_4 = Tuple::<f64>::new_point(4.5, 3.0, 4.0);
+
+        assert_eq!(ray.position(0.0), point_1);
+        assert_eq!(ray.position(1.0), point_2);
+        assert_eq!(ray.position(-1.0), point_3);
+        assert_eq!(ray.position(2.5), point_4)
+    }
 }
