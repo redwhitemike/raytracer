@@ -22,6 +22,7 @@ where
         Self { origin, direction }
     }
 
+    // return the position of a ray at a certain distance
     pub fn position(&self, distance: T) -> Tuple<T> {
         self.origin + self.direction * distance
     }
