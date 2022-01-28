@@ -9,7 +9,7 @@ use std::ops::{Add, Div, Index, IndexMut, Mul, Neg, Sub};
    Also contains tests
 */
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct Tuple<T>
 where
     T: Float,
