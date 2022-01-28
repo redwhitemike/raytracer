@@ -13,6 +13,7 @@ mod color;
 mod float_service;
 mod matrix;
 mod projectile;
+mod ray;
 mod tuple;
 
 /**
