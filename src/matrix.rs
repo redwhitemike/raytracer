@@ -5,7 +5,7 @@ use std::array::IntoIter;
 use std::ops::{AddAssign, Index, IndexMut, Mul};
 
 #[derive(Debug, Clone)]
-struct Matrix<T, const N: usize>
+pub struct Matrix<T, const N: usize>
 where
     T: Float,
     T: Clone,
