@@ -3,6 +3,7 @@
     This file contains the canvas struct, its methods and its tests
 */
 use crate::color::*;
+use std::fs;
 
 // the canvas struct, used as a rectangular grid of pixels
 #[derive(Debug)]
@@ -91,6 +92,15 @@ impl Canvas {
         });
 
         ppm_vec.join("")
+    }
+
+    // write the contents of a canvas to a .ppm file
+    pub fn write_ppm(&self, file_name: &str) {
+        let ppm = self.to_ppm();
+        match fs::write(file_name, ppm) {
+            Ok(_) => println!("canvas has been printed to {}", file_name),
+            Err(_) => println!("writing to file failed"),
+        }
     }
 }
 
