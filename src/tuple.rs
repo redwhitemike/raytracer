@@ -65,16 +65,16 @@ where
     }
 
     // create dot product of 2 vectors
-    pub fn dot_product(t1: &Tuple<T>, t2: &Tuple<T>) -> T {
-        t1.x * t2.x + t1.y * t2.y + t1.z * t2.z + t1.w * t1.w
+    pub fn dot_product(&self, t2: &Tuple<T>) -> T {
+        self.x * t2.x + self.y * t2.y + self.z * t2.z + self.w * t2.w
     }
 
     // create cross product of 2 vectors
-    pub fn cross_product(t1: &Tuple<T>, t2: &Tuple<T>) -> Tuple<T> {
+    pub fn cross_product(&self, t2: &Tuple<T>) -> Tuple<T> {
         Tuple::new_vector(
-            t1.y * t2.z - t1.z * t2.y,
-            t1.z * t2.x - t1.x * t2.z,
-            t1.x * t2.y - t1.y * t2.x,
+            self.y * t2.z - self.z * t2.y,
+            self.z * t2.x - self.x * t2.z,
+            self.x * t2.y - self.y * t2.x,
         )
     }
 }
