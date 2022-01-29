@@ -10,8 +10,8 @@ pub struct Ray<T>
 where
     T: Float,
 {
-    origin: Tuple<T>,
-    direction: Tuple<T>,
+    pub origin: Tuple<T>,
+    pub direction: Tuple<T>,
 }
 
 impl<T> Ray<T>
