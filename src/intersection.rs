@@ -1,9 +1,21 @@
-use crate::sphere::Sphere;
+use crate::ray::Ray;
 use num::Float;
+use std::ops::{Index, IndexMut};
 
 // this trait is used to identify shape structs
 // TODO: will be expanded on later
-pub trait IntersectionObject {}
+pub trait IntersectionObject {
+    type Object;
+
+    // return an array of 2 intersections where the ray has intersected
+    // the given object.
+    fn intersect<T: Float>(
+        &self,
+        ray: Ray<T>,
+    ) -> Result<[Intersection<T, Self::Object>; 2], &'static str>
+    where
+        <Self as IntersectionObject>::Object: IntersectionObject;
+}
 
 pub struct Intersection<T, O>
 where
