@@ -11,6 +11,7 @@ use std::f64::consts::PI;
 mod canvas;
 mod color;
 mod float_service;
+mod intersection;
 mod matrix;
 mod projectile;
 mod ray;
