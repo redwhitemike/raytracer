@@ -1,4 +1,4 @@
-use crate::intersection::IntersectionObject;
+use crate::intersection::{Intersection, IntersectionObject};
 use crate::ray::Ray;
 use crate::Tuple;
 use num::Float;
@@ -12,13 +12,17 @@ impl Sphere {
     pub fn new(id: i32) -> Self {
         Self { id }
     }
+}
 
-    // return an array of 2 values where the ray has intersected
-    // the given sphere. We do this by computing the discriminant
-    pub fn intersect<T>(&self, ray: Ray<T>) -> Result<[T; 2], &'static str>
-    where
-        T: Float,
-    {
+// IntersectionObject is used as generic trait
+// for all the objects that intersect with rays
+impl IntersectionObject for Sphere {
+    type Object = Sphere;
+
+    fn intersect<T: Float>(
+        &self,
+        ray: Ray<T>,
+    ) -> Result<[Intersection<T, Self::Object>; 2], &'static str> {
         let sphere_to_ray = ray.origin - Tuple::<T>::new_point(T::zero(), T::zero(), T::zero());
         let a = ray.direction.dot_product(&ray.direction);
         let b: T = ray.direction.dot_product(&sphere_to_ray) * T::from(2.0).unwrap();
@@ -28,19 +32,23 @@ impl Sphere {
         match discriminant < T::zero() {
             true => Err("Discriminant is lower then 0"),
             false => {
-                let mut intersect = [T::zero(); 2];
-                intersect[0] = (-b - discriminant.sqrt()) / (T::from(2.0).unwrap() * a);
-                intersect[1] = (-b + discriminant.sqrt()) / (T::from(2.0).unwrap() * a);
+                let intersection_1 = Intersection::<T, Sphere>::new(
+                    (-b - discriminant.sqrt()) / (T::from(2.0).unwrap() * a),
+                    self.clone(),
+                );
+                let intersection_2 = Intersection::<T, Sphere>::new(
+                    (-b + discriminant.sqrt()) / (T::from(2.0).unwrap() * a),
+                    self.clone(),
+                );
 
-                Ok(intersect)
+                Ok([intersection_1, intersection_2])
             }
         }
     }
 }
 
-impl IntersectionObject for Sphere {}
-
 mod tests {
+    use crate::intersection::IntersectionObject;
     use crate::ray::Ray;
     use crate::sphere::Sphere;
     use crate::Tuple;
@@ -55,8 +63,8 @@ mod tests {
 
         match sphere.intersect(ray) {
             Ok(inter) => {
-                assert_eq!(inter[0], 4.0_f64);
-                assert_eq!(inter[1], 6.0_f64)
+                assert_eq!(inter[0].value, 4.0_f64);
+                assert_eq!(inter[1].value, 6.0_f64)
             }
             Err(_) => {
                 assert_eq!(true, false)
@@ -74,8 +82,8 @@ mod tests {
 
         match sphere.intersect(ray) {
             Ok(inter) => {
-                assert_eq!(inter[0], 5.0_f64);
-                assert_eq!(inter[1], 5.0_f64)
+                assert_eq!(inter[0].value, 5.0_f64);
+                assert_eq!(inter[1].value, 5.0_f64)
             }
             Err(_) => {
                 assert_eq!(true, false)
@@ -111,8 +119,8 @@ mod tests {
 
         match sphere.intersect(ray) {
             Ok(inter) => {
-                assert_eq!(inter[0], -1.0_f64);
-                assert_eq!(inter[1], 1.0_f64)
+                assert_eq!(inter[0].value, -1.0_f64);
+                assert_eq!(inter[1].value, 1.0_f64)
             }
             Err(_) => {
                 assert_eq!(true, false)
@@ -130,8 +138,8 @@ mod tests {
 
         match sphere.intersect(ray) {
             Ok(inter) => {
-                assert_eq!(inter[0], -6.0_f64);
-                assert_eq!(inter[1], -4.0_f64)
+                assert_eq!(inter[0].value, -6.0_f64);
+                assert_eq!(inter[1].value, -4.0_f64)
             }
             Err(_) => {
                 assert_eq!(true, false)
