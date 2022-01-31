@@ -1,6 +1,10 @@
 use crate::sphere::Sphere;
 use num::Float;
 
+// this trait is used to identify shape structs
+// TODO: will be expanded on later
+pub trait IntersectionObject {}
+
 pub struct Intersection<T, O>
 where
     T: Float,
@@ -10,8 +14,6 @@ where
     pub object: O,
 }
 
-pub trait IntersectionObject {}
-
 impl<T, O> Intersection<T, O>
 where
     T: Float,
@@ -20,6 +22,16 @@ where
     pub fn new(value: T, object: O) -> Self {
         Self { value, object }
     }
+}
+
+// array primitive for holding all the intersection
+// TODO: will be expanded on later
+pub struct Intersections<T, O, const N: usize>
+where
+    T: Float,
+    O: IntersectionObject,
+{
+    data: [Intersection<T, O>; N],
 }
 
 mod tests {
