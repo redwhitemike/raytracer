@@ -3,7 +3,6 @@ use num::Float;
 use std::ops::{Index, IndexMut};
 
 // this trait is used to identify shape structs
-// TODO: will be expanded on later
 pub trait IntersectionObject {
     type Object;
 
