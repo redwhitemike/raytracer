@@ -1,7 +1,9 @@
+use crate::intersection::IntersectionObject;
 use crate::ray::Ray;
 use crate::Tuple;
 use num::Float;
 
+#[derive(Clone, PartialEq, Debug)]
 pub struct Sphere {
     id: i32,
 }
@@ -35,6 +37,8 @@ impl Sphere {
         }
     }
 }
+
+impl IntersectionObject for Sphere {}
 
 mod tests {
     use crate::ray::Ray;
