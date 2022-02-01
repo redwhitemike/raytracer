@@ -198,4 +198,28 @@ mod tests {
             }
         }
     }
+
+    #[test]
+    fn return_lowest_multiple_intersections() {
+        let sphere = Sphere::new(1);
+        let intersection_1 = Intersection::<f64, Sphere>::new(5.0, sphere.clone());
+        let intersection_2 = Intersection::<f64, Sphere>::new(7.0, sphere.clone());
+        let intersection_3 = Intersection::<f64, Sphere>::new(-3.0, sphere.clone());
+        let intersection_4 = Intersection::<f64, Sphere>::new(2.0, sphere.clone());
+        let intersections = Intersections::<f64, Sphere, 4>::new([
+            intersection_1,
+            intersection_2,
+            intersection_3,
+            intersection_4.clone(),
+        ]);
+
+        match intersections.hit() {
+            None => {
+                assert_eq!(true, false)
+            }
+            Some(inter) => {
+                assert_eq!(intersection_4, inter)
+            }
+        }
+    }
 }
