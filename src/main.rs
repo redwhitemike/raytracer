@@ -44,8 +44,8 @@ fn write_clock() {
     );
 
     for _i in 0..4 {
-        let mut x = 0;
-        let mut y = 0;
+        let x;
+        let y;
 
         match (point.x.to_isize(), point.z.to_isize()) {
             (Some(xi), Some(yi)) => {

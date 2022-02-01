@@ -1,5 +1,4 @@
 use crate::ray::Ray;
-use crate::sphere::Sphere;
 use num::Float;
 use std::clone::Clone;
 use std::ops::{Index, IndexMut};
@@ -97,7 +96,7 @@ where
     O: IntersectionObject + Clone,
 {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        &mut self[index]
+        &mut self.data[index]
     }
 }
 
