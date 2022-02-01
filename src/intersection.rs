@@ -4,24 +4,24 @@ use std::clone::Clone;
 use std::ops::{Index, IndexMut};
 
 // this trait is used to identify shape structs
-pub trait IntersectionObject {
+pub trait IntersectionObject<T>
+where
+    T: Float,
+{
     type Object;
 
     // return an array of 2 intersections where the ray has intersected
     // the given object.
-    fn intersect<T: Float>(
-        &self,
-        ray: Ray<T>,
-    ) -> Result<[Intersection<T, Self::Object>; 2], &'static str>
+    fn intersect(&self, ray: Ray<T>) -> Result<[Intersection<T, Self::Object>; 2], &'static str>
     where
-        <Self as IntersectionObject>::Object: IntersectionObject + Clone;
+        <Self as IntersectionObject<T>>::Object: IntersectionObject<T> + Clone;
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Intersection<T, O>
 where
     T: Float,
-    O: IntersectionObject + Clone,
+    O: IntersectionObject<T> + Clone,
 {
     pub value: T,
     pub object: O,
@@ -30,7 +30,7 @@ where
 impl<T, O> Intersection<T, O>
 where
     T: Float,
-    O: IntersectionObject + Clone,
+    O: IntersectionObject<T> + Clone,
 {
     pub fn new(value: T, object: O) -> Self {
         Self { value, object }
@@ -41,7 +41,7 @@ where
 pub struct Intersections<T, O, const N: usize>
 where
     T: Float,
-    O: IntersectionObject + Clone,
+    O: IntersectionObject<T> + Clone,
 {
     data: [Intersection<T, O>; N],
 }
@@ -49,7 +49,7 @@ where
 impl<T, O, const N: usize> Intersections<T, O, N>
 where
     T: Float,
-    O: IntersectionObject + Clone,
+    O: IntersectionObject<T> + Clone,
 {
     pub fn new(data: [Intersection<T, O>; N]) -> Self {
         Self { data }
@@ -81,7 +81,7 @@ where
 impl<T, O, const N: usize> Index<usize> for Intersections<T, O, N>
 where
     T: Float,
-    O: IntersectionObject + Clone,
+    O: IntersectionObject<T> + Clone,
 {
     type Output = Intersection<T, O>;
 
@@ -93,7 +93,7 @@ where
 impl<T, O, const N: usize> IndexMut<usize> for Intersections<T, O, N>
 where
     T: Float,
-    O: IntersectionObject + Clone,
+    O: IntersectionObject<T> + Clone,
 {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         &mut self.data[index]
@@ -108,8 +108,8 @@ mod tests {
 
     #[test]
     fn create_intersection() {
-        let sphere = Sphere::new(1);
-        let intersection = Intersection::<f64, Sphere>::new(1.0, sphere.clone());
+        let sphere = Sphere::<f64>::new(1);
+        let intersection = Intersection::<f64, Sphere<f64>>::new(1.0, sphere.clone());
 
         assert_eq!(intersection.value, 1.0);
         assert_eq!(intersection.object, sphere)
@@ -117,10 +117,11 @@ mod tests {
 
     #[test]
     fn create_intersections_check_values() {
-        let sphere = Sphere::new(1);
-        let intersection_1 = Intersection::<f64, Sphere>::new(1.0, sphere.clone());
-        let intersection_2 = Intersection::<f64, Sphere>::new(2.0, sphere.clone());
-        let intersections = Intersections::<f64, Sphere, 2>::new([intersection_1, intersection_2]);
+        let sphere = Sphere::<f64>::new(1);
+        let intersection_1 = Intersection::<f64, Sphere<f64>>::new(1.0, sphere.clone());
+        let intersection_2 = Intersection::<f64, Sphere<f64>>::new(2.0, sphere.clone());
+        let intersections =
+            Intersections::<f64, Sphere<f64>, 2>::new([intersection_1, intersection_2]);
 
         assert_eq!(intersections[0].value, 1.0);
         assert_eq!(intersections[1].value, 2.0)
@@ -128,7 +129,7 @@ mod tests {
 
     #[test]
     fn create_intersection_check_objects() {
-        let sphere = Sphere::new(1);
+        let sphere = Sphere::<f64>::new(1);
         let ray = Ray::<f64>::new(
             Tuple::<f64>::new_point(0.0, 0.0, -5.0),
             Tuple::<f64>::new_vector(0.0, 0.0, 1.0),
@@ -146,12 +147,12 @@ mod tests {
 
     #[test]
     fn return_hit() {
-        let sphere = Sphere::new(1);
-        let intersection_1 = Intersection::<f64, Sphere>::new(1.0, sphere.clone());
-        let intersection_2 = Intersection::<f64, Sphere>::new(2.0, sphere.clone());
+        let sphere = Sphere::<f64>::new(1);
+        let intersection_1 = Intersection::<f64, Sphere<f64>>::new(1.0, sphere.clone());
+        let intersection_2 = Intersection::<f64, Sphere<f64>>::new(2.0, sphere.clone());
 
         let intersections =
-            Intersections::<f64, Sphere, 2>::new([intersection_1.clone(), intersection_2]);
+            Intersections::<f64, Sphere<f64>, 2>::new([intersection_1.clone(), intersection_2]);
 
         match intersections.hit() {
             None => {
@@ -165,11 +166,11 @@ mod tests {
 
     #[test]
     fn return_hit_some_negative() {
-        let sphere = Sphere::new(1);
-        let intersection_1 = Intersection::<f64, Sphere>::new(-1.0, sphere.clone());
-        let intersection_2 = Intersection::<f64, Sphere>::new(1.0, sphere.clone());
+        let sphere = Sphere::<f64>::new(1);
+        let intersection_1 = Intersection::<f64, Sphere<f64>>::new(-1.0, sphere.clone());
+        let intersection_2 = Intersection::<f64, Sphere<f64>>::new(1.0, sphere.clone());
         let intersections =
-            Intersections::<f64, Sphere, 2>::new([intersection_1, intersection_2.clone()]);
+            Intersections::<f64, Sphere<f64>, 2>::new([intersection_1, intersection_2.clone()]);
 
         match intersections.hit() {
             None => {
@@ -183,10 +184,11 @@ mod tests {
 
     #[test]
     fn return_no_hit() {
-        let sphere = Sphere::new(1);
-        let intersection_1 = Intersection::<f64, Sphere>::new(-2.0, sphere.clone());
-        let intersection_2 = Intersection::<f64, Sphere>::new(-1.0, sphere);
-        let intersections = Intersections::<f64, Sphere, 2>::new([intersection_1, intersection_2]);
+        let sphere = Sphere::<f64>::new(1);
+        let intersection_1 = Intersection::<f64, Sphere<f64>>::new(-2.0, sphere.clone());
+        let intersection_2 = Intersection::<f64, Sphere<f64>>::new(-1.0, sphere);
+        let intersections =
+            Intersections::<f64, Sphere<f64>, 2>::new([intersection_1, intersection_2]);
 
         match intersections.hit() {
             None => {
@@ -200,12 +202,12 @@ mod tests {
 
     #[test]
     fn return_lowest_multiple_intersections() {
-        let sphere = Sphere::new(1);
-        let intersection_1 = Intersection::<f64, Sphere>::new(5.0, sphere.clone());
-        let intersection_2 = Intersection::<f64, Sphere>::new(7.0, sphere.clone());
-        let intersection_3 = Intersection::<f64, Sphere>::new(-3.0, sphere.clone());
-        let intersection_4 = Intersection::<f64, Sphere>::new(2.0, sphere.clone());
-        let intersections = Intersections::<f64, Sphere, 4>::new([
+        let sphere = Sphere::<f64>::new(1);
+        let intersection_1 = Intersection::<f64, Sphere<f64>>::new(5.0, sphere.clone());
+        let intersection_2 = Intersection::<f64, Sphere<f64>>::new(7.0, sphere.clone());
+        let intersection_3 = Intersection::<f64, Sphere<f64>>::new(-3.0, sphere.clone());
+        let intersection_4 = Intersection::<f64, Sphere<f64>>::new(2.0, sphere.clone());
+        let intersections = Intersections::<f64, Sphere<f64>, 4>::new([
             intersection_1,
             intersection_2,
             intersection_3,

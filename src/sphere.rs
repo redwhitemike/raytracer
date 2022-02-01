@@ -1,28 +1,40 @@
 use crate::intersection::{Intersection, IntersectionObject};
 use crate::ray::Ray;
-use crate::Tuple;
+use crate::{Matrix, Tuple};
 use num::Float;
+use std::ops::AddAssign;
 
 #[derive(Clone, PartialEq, Debug)]
-pub struct Sphere {
+pub struct Sphere<T>
+where
+    T: Float,
+{
     id: i32,
+    translation: Matrix<T, 4>,
 }
 
-impl Sphere {
+impl<T> Sphere<T>
+where
+    T: Float,
+    T: AddAssign,
+{
     pub fn new(id: i32) -> Self {
-        Self { id }
+        Self {
+            id,
+            translation: Matrix::<T, 4>::identity_matrix(),
+        }
     }
 }
 
 // IntersectionObject is used as generic trait
 // for all the objects that intersect with rays
-impl IntersectionObject for Sphere {
-    type Object = Sphere;
+impl<T> IntersectionObject<T> for Sphere<T>
+where
+    T: Float,
+{
+    type Object = Sphere<T>;
 
-    fn intersect<T: Float>(
-        &self,
-        ray: Ray<T>,
-    ) -> Result<[Intersection<T, Self::Object>; 2], &'static str> {
+    fn intersect(&self, ray: Ray<T>) -> Result<[Intersection<T, Self::Object>; 2], &'static str> {
         let sphere_to_ray = ray.origin - Tuple::<T>::new_point(T::zero(), T::zero(), T::zero());
         let a = ray.direction.dot_product(&ray.direction);
         let b: T = ray.direction.dot_product(&sphere_to_ray) * T::from(2.0).unwrap();
@@ -32,11 +44,11 @@ impl IntersectionObject for Sphere {
         match discriminant < T::zero() {
             true => Err("Discriminant is lower then 0"),
             false => {
-                let intersection_1 = Intersection::<T, Sphere>::new(
+                let intersection_1 = Intersection::<T, Sphere<T>>::new(
                     (-b - discriminant.sqrt()) / (T::from(2.0).unwrap() * a),
                     self.clone(),
                 );
-                let intersection_2 = Intersection::<T, Sphere>::new(
+                let intersection_2 = Intersection::<T, Sphere<T>>::new(
                     (-b + discriminant.sqrt()) / (T::from(2.0).unwrap() * a),
                     self.clone(),
                 );
@@ -59,7 +71,7 @@ mod tests {
             Tuple::<f64>::new_point(0.0, 0.0, -5.0),
             Tuple::<f64>::new_vector(0.0, 0.0, 1.0),
         );
-        let sphere = Sphere::new(1);
+        let sphere = Sphere::<f64>::new(1);
 
         match sphere.intersect(ray) {
             Ok(inter) => {
@@ -78,7 +90,7 @@ mod tests {
             Tuple::<f64>::new_point(0.0, 1.0, -5.0),
             Tuple::<f64>::new_vector(0.0, 0.0, 1.0),
         );
-        let sphere = Sphere::new(1);
+        let sphere = Sphere::<f64>::new(1);
 
         match sphere.intersect(ray) {
             Ok(inter) => {
@@ -97,7 +109,7 @@ mod tests {
             Tuple::<f64>::new_point(0.0, 2.0, -5.0),
             Tuple::<f64>::new_vector(0.0, 0.0, 1.0),
         );
-        let sphere = Sphere::new(1);
+        let sphere = Sphere::<f64>::new(1);
 
         match sphere.intersect(ray) {
             Ok(_) => {
@@ -115,7 +127,7 @@ mod tests {
             Tuple::<f64>::new_point(0.0, 0.0, 0.0),
             Tuple::<f64>::new_vector(0.0, 0.0, 1.0),
         );
-        let sphere = Sphere::new(1);
+        let sphere = Sphere::<f64>::new(1);
 
         match sphere.intersect(ray) {
             Ok(inter) => {
@@ -134,7 +146,7 @@ mod tests {
             Tuple::<f64>::new_point(0.0, 0.0, 5.0),
             Tuple::<f64>::new_vector(0.0, 0.0, 1.0),
         );
-        let sphere = Sphere::new(1);
+        let sphere = Sphere::<f64>::new(1);
 
         match sphere.intersect(ray) {
             Ok(inter) => {
@@ -145,5 +157,10 @@ mod tests {
                 assert_eq!(true, false)
             }
         }
+    }
+
+    #[test]
+    fn sphere_default_transformation() {
+        let sphere = Sphere::<f64>::new(1);
     }
 }
