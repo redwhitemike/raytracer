@@ -12,7 +12,7 @@ where
 
     // return an array of 2 intersections where the ray has intersected
     // the given object.
-    fn intersect(&self, ray: Ray<T>) -> Result<[Intersection<T, Self::Object>; 2], &'static str>
+    fn intersect(&self, ray: Ray<T>) -> Result<Intersections<T, Self::Object, 2>, &'static str>
     where
         <Self as IntersectionObject<T>>::Object: IntersectionObject<T> + Clone;
 }
