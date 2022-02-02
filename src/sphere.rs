@@ -1,4 +1,4 @@
-use crate::intersection::{Intersection, IntersectionObject};
+use crate::intersection::{Intersection, IntersectionObject, Intersections};
 use crate::ray::Ray;
 use crate::{Matrix, Tuple};
 use num::Float;
@@ -41,7 +41,7 @@ where
 {
     type Object = Sphere<T>;
 
-    fn intersect(&self, ray: Ray<T>) -> Result<[Intersection<T, Self::Object>; 2], &'static str> {
+    fn intersect(&self, ray: Ray<T>) -> Result<Intersections<T, Self::Object, 2>, &'static str> {
         let mut inverse = self.transformation.clone();
         match inverse.inverse() {
             Ok(inv) => inverse = inv,
@@ -65,8 +65,7 @@ where
                     (-b + discriminant.sqrt()) / (T::from(2.0).unwrap() * a),
                     self.clone(),
                 );
-
-                Ok([intersection_1, intersection_2])
+                Ok(Intersections::new([intersection_1, intersection_2]))
             }
         }
     }
