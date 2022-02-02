@@ -2,17 +2,26 @@
 
 use crate::canvas::Canvas;
 use crate::color::Color;
+use crate::intersection::{Intersection, IntersectionObject, Intersections};
 use crate::matrix::Matrix;
 use crate::projectile::{Environment, Projectile};
+use crate::ray::Ray;
+use crate::sphere::Sphere;
 use crate::tuple::Tuple;
 use num::ToPrimitive;
+use rayon::iter::*;
+use rayon::prelude;
 use std::f64::consts::PI;
+use std::sync::Mutex;
 
 mod canvas;
 mod color;
 mod float_service;
+mod intersection;
 mod matrix;
 mod projectile;
+mod ray;
+mod sphere;
 mod tuple;
 
 /**
@@ -22,10 +31,49 @@ mod tuple;
 
 const CANVAS_WIDTH: usize = 800;
 const CANVAS_HEIGHT: usize = 800;
-const FILE_NAME: &str = "clock.ppm";
+const FILE_NAME: &str = "intersection.ppm";
 
 fn main() {
-    write_clock();
+    //write_projectile();
+    //write_clock();
+    cast_rays_at_sphere()
+}
+
+fn cast_rays_at_sphere() {
+    let origin = Tuple::<f64>::new_point(0.0, 0.0, -5.0);
+    let wall_z = 10.0;
+    let wall_size = 7.0;
+    let half = wall_size / 2.0;
+    let canvas_pixel = 100;
+    let pixel_size = wall_size / canvas_pixel.to_f64().unwrap();
+    let canvas = Mutex::new(Canvas::new(canvas_pixel, canvas_pixel));
+    let color = Color::new(1.0, 0.0, 0.0);
+    let sphere = Sphere::<f64>::new(1);
+
+    (0..canvas_pixel).par_bridge().for_each(|y| {
+        let world_y = half - pixel_size * y.to_f64().unwrap();
+
+        for x in 0..canvas_pixel {
+            let world_x = -half + pixel_size * x.to_f64().unwrap();
+            let position = Tuple::<f64>::new_point(world_x, world_y, wall_z);
+            let ray = Ray::new(origin, (position - origin).normalize());
+            match sphere.intersect(ray) {
+                Ok(intersections) => match intersections.hit() {
+                    None => {}
+                    Some(_) => {
+                        let mut canvas = canvas.lock().unwrap();
+                        match canvas.write_pixel(x, y, color.clone()) {
+                            Ok(_) => {}
+                            Err(_) => {}
+                        }
+                    }
+                },
+                Err(_) => {}
+            }
+        }
+    });
+
+    canvas.lock().unwrap().write_ppm(FILE_NAME);
 }
 
 // we use isize because the point coordinates can become negative but by adding
@@ -41,8 +89,8 @@ fn write_clock() {
     );
 
     for _i in 0..4 {
-        let mut x = 0;
-        let mut y = 0;
+        let x;
+        let y;
 
         match (point.x.to_isize(), point.z.to_isize()) {
             (Some(xi), Some(yi)) => {
@@ -63,7 +111,7 @@ fn write_clock() {
         }
     }
 
-    canvas.write_ppm(FILE_NAME)
+    canvas.write_ppm("clock.ppm")
 }
 
 fn write_projectile() {

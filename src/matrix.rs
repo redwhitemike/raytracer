@@ -381,7 +381,7 @@ where
     type Output = Tuple<T>;
 
     fn mul(self, rhs: Tuple<T>) -> Tuple<T> {
-        let mut tuple = rhs.clone();
+        let mut tuple = rhs;
         for i in 0..4 {
             let mut right_number = T::zero();
             for y in 0..4 {
