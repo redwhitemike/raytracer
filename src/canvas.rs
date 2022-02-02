@@ -126,9 +126,15 @@ mod tests {
         let mut canvas = Canvas::new(8, 8);
         let color = Color::new(1.0, 0.0, 0.0);
         let test_color = Color::new(1.0, 0.0, 0.0);
-        canvas.write_pixel(2, 3, color);
 
-        assert_eq!(*canvas.at_pixel(2, 3), test_color)
+        match canvas.write_pixel(2, 3, color) {
+            Ok(_) => {
+                assert_eq!(*canvas.at_pixel(2, 3), test_color)
+            }
+            Err(_) => {
+                assert_eq!(true, false)
+            }
+        }
     }
 
     #[test]
@@ -138,9 +144,16 @@ mod tests {
         let color2 = Color::new(0.0, 0.5, 0.0);
         let color3 = Color::new(-0.5, 0.0, 1.0);
 
-        canvas.write_pixel(0, 0, color1);
-        canvas.write_pixel(2, 1, color2);
-        canvas.write_pixel(4, 2, color3);
+        let parameters = [(0, 0, color1), (2, 1, color2), (4, 2, color3)];
+
+        for (w, h, c) in parameters {
+            match canvas.write_pixel(w, h, c) {
+                Ok(_) => {}
+                Err(_) => {
+                    assert_eq!(true, false)
+                }
+            }
+        }
 
         let ppm_string = canvas.to_ppm();
         let correct_string = String::from(

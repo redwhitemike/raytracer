@@ -45,8 +45,8 @@ where
     // calculate the new vector projectile position based on
     // the given environment
     pub fn tick(&mut self, environment: Environment<T>) {
-        self.position = self.position.clone() + self.velocity.clone();
-        self.velocity = self.velocity.clone() + environment.gravity + environment.wind;
+        self.position = self.position + self.velocity;
+        self.velocity = self.velocity + environment.gravity + environment.wind;
     }
 }
 
