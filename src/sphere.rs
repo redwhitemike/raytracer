@@ -248,4 +248,16 @@ mod tests {
 
         assert_eq!(sphere.normal_at(point), correct_normal)
     }
+
+    #[test]
+    fn normal_is_normalized_vector() {
+        let sphere = Sphere::<f64>::new(1);
+        let n = sphere.normal_at(Tuple::new_point(
+            3.0_f64.sqrt() / 3.0,
+            3.0_f64.sqrt() / 3.0,
+            3.0_f64.sqrt() / 3.0,
+        ));
+
+        assert_eq!(n, n.normalize())
+    }
 }
