@@ -2,7 +2,7 @@
 
 use crate::canvas::Canvas;
 use crate::color::Color;
-use crate::intersection::{Intersection, IntersectionObject, Intersections};
+use crate::intersection::IntersectionObject;
 use crate::matrix::Matrix;
 use crate::projectile::{Environment, Projectile};
 use crate::ray::Ray;
@@ -10,7 +10,6 @@ use crate::sphere::Sphere;
 use crate::tuple::Tuple;
 use num::ToPrimitive;
 use rayon::iter::*;
-use rayon::prelude;
 use std::f64::consts::PI;
 use std::sync::Mutex;
 
