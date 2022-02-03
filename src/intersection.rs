@@ -1,4 +1,5 @@
 use crate::ray::Ray;
+use crate::Tuple;
 use num::Float;
 use std::clone::Clone;
 use std::ops::{Index, IndexMut};
@@ -15,6 +16,8 @@ where
     fn intersect(&self, ray: Ray<T>) -> Result<Intersections<T, Self::Object, 2>, &'static str>
     where
         <Self as IntersectionObject<T>>::Object: IntersectionObject<T> + Clone;
+
+    fn normal_at(&self, vector: Tuple<T>) -> Tuple<T>;
 }
 
 #[derive(Debug, PartialEq, Clone)]
