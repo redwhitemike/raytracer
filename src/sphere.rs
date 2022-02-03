@@ -69,10 +69,14 @@ where
             }
         }
     }
+
+    fn normal_at(&self, point: Tuple<T>) -> Tuple<T> {
+        (point - Tuple::<T>::new_point(T::zero(), T::zero(), T::zero())).normalize()
+    }
 }
 
 mod tests {
-    use crate::intersection::{Intersection, IntersectionObject};
+    use crate::intersection::IntersectionObject;
     use crate::ray::Ray;
     use crate::sphere::Sphere;
     use crate::{Matrix, Tuple};
@@ -205,5 +209,43 @@ mod tests {
                 assert_eq!(true, false)
             }
         }
+    }
+
+    #[test]
+    fn normal_on_x_axis() {
+        let sphere = Sphere::<f64>::new(1);
+        let point = Tuple::<f64>::new_point(1.0, 0.0, 0.0);
+        let correct_normal = Tuple::<f64>::new_vector(1.0, 0.0, 0.0);
+
+        assert_eq!(sphere.normal_at(point), correct_normal)
+    }
+
+    #[test]
+    fn normal_on_y_axis() {
+        let sphere = Sphere::<f64>::new(1);
+        let point = Tuple::<f64>::new_point(0.0, 1.0, 0.0);
+        let correct_normal = Tuple::<f64>::new_vector(0.0, 1.0, 0.0);
+
+        assert_eq!(sphere.normal_at(point), correct_normal)
+    }
+
+    #[test]
+    fn normal_on_z_axis() {
+        let sphere = Sphere::<f64>::new(1);
+        let point = Tuple::<f64>::new_point(0.0, 0.0, 1.0);
+        let correct_normal = Tuple::<f64>::new_vector(0.0, 0.0, 1.0);
+
+        assert_eq!(sphere.normal_at(point), correct_normal)
+    }
+
+    #[test]
+    fn normal_on_nonaxial_point() {
+        let sphere = Sphere::<f64>::new(1);
+        let point =
+            Tuple::<f64>::new_point(3_f64.sqrt() / 3.0, 3_f64.sqrt() / 3.0, 3_f64.sqrt() / 3.0);
+        let correct_normal =
+            Tuple::<f64>::new_vector(3_f64.sqrt() / 3.0, 3_f64.sqrt() / 3.0, 3_f64.sqrt() / 3.0);
+
+        assert_eq!(sphere.normal_at(point), correct_normal)
     }
 }
